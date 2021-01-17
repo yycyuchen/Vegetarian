@@ -15,5 +15,4 @@ title:  Team
 ## Zhimeng Pi
 ***UCI Net ID***: zhimengp
 
-## yyyy
-***UCI Net Id***: 66666
+
