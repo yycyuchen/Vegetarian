@@ -1,8 +1,4 @@
 ---
-layout: default
-title: Proposal
----
----
 layout: page
 title: Proposal
 permalink: /proposal/
