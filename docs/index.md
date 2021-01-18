@@ -4,7 +4,7 @@ title:  Home
 ---
 
 ## Source code
-[https://kaviochen.github.io/NullCraft/index.html](https://kaviochen.github.io/NullCraft/index.html)
+[https://github.com/kaviochen/NullCraft](https://github.com/kaviochen/NullCraft)
 
 Reports:
 
