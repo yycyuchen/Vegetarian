@@ -9,7 +9,7 @@ title: Proposal
 
 ## Summary of the Project
 
-Our project is to simulate a set of reward policies in Minecraft. We will create platforms with different sizes and shapes to allow the agent to walk different paths from start （emerald_block）to end（redstone_block）. We will place different foods in some diamond_blocks. Each different food will represent a reward or punishment score（negative rewards）. The agent can move in four different directions and each step is 1 block. Each movement consumes a certain score value. Our goal is to let the agent find the optimal path through the learning of the environment, which means that the agent needs to get the highest score in a limited number of steps as much as possible.
+Our project is to simulate a set of reward policies in Minecraft. We will create platforms with different sizes and shapes to allow the agent to walk different paths from the starting point（emerald_block）to the end point（redstone_block）. We will place different foods in some diamond_blocks. Each different food will represent a reward or punishment score（negative rewards）. The agent can move in four different directions and each step is 1 block. Each movement consumes a certain score value. Our goal is to let the agent find the optimal path through the learning of the environment, which means that the agent needs to get the highest score in a limited number of steps as much as possible.
 
 ***Input:***
 The state of the agent, such as, the coordinates or the current rewards. 
@@ -39,12 +39,13 @@ Currently, our project plan to use Dynamic Programming and Deep Q-Learning (Rein
     
 ***Qualitative:***
 
-#### 
-<br />
-    
-***Quantitative:***
+In the process of reinforcement learning, the evaluation metrics would be the reward scores that the agent obtains. The reward scores can be positive or even negative. The baseline is the agent must walk from the starting point (emerald_block) to the end point (redstone_block) without falling. The agent will obtain reward scores by taking different reasonable paths. The length of the path taken by the agent is positively correlated with the consumption, which means that the more blocks the agent walks, the more reward scores will be deducted. Different blocks will have food representing different reward scores.
 
-####
+<br />
+
+***Quantitative:***
+The initial sanity check is that the agent can find a reasonable route including the correct starting point (emerald_block) to the end point (redstone_block) and will not fall to death. He can get a low score but must survive. As the agent continuously learns the environment, it can find the optimal solution brilliantly. The agent needs to equipped with the ability that it can achieve highest score as it can get within a relatively short path.
+
 
 
 
