@@ -44,6 +44,7 @@ In the process of reinforcement learning, the evaluation metrics would be the re
 <br />
 
 ***Quantitative:***
+
 The initial sanity check is that the agent can find a reasonable route including the correct starting point (emerald_block) to the end point (redstone_block) and will not fall to death. He can get a low score but must survive. As the agent continuously learns the environment, it can find the optimal solution brilliantly. The agent needs to equipped with the ability that it can achieve highest score as it can get within a relatively short path.
 
 
