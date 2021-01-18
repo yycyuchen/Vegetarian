@@ -32,9 +32,9 @@ This is a list:
 
 $$x^2 = y^2$$
 
-
-Just getting started with Markdown?
-See the [HTML <-> Markdown Quick Reference (Cheat Sheet)][quickref].
+## References
+Markdown and format: [HTML <-> Markdown Quick Reference (Cheat Sheet)][quickref].
 
 
 [quickref]: https://github.com/mundimark/quickrefs/blob/master/HTML.md
+Rewards of foods: https://minecraft.gamepedia.com/Food
