@@ -63,6 +63,6 @@ Wednesday, January 20, 2021, 04:15pm (Pacific Time - US & Canada)
 
 ## Weekly Meeting
 
-We meet twice a week from 09:00pm - 10:00pm (Pacific Time - US & Canada) on Wednesday and Sunday.
-On Sundays, we assign each one what we need to do next week and on Wednesdays we discuss and help each other
+We meet twice a week from 09:00pm - 10:00pm (Pacific Time - US & Canada) on Wednesday and Sunday.\n
+On Sundays, we assign each one what we need to do next week and on Wednesdays we discuss and help each other.
 
