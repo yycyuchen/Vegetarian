@@ -56,3 +56,13 @@ The initial sanity check is that the agent can find a reasonable route including
 
 
 Wednesday, January 20, 2021, 04:15pm (Pacific Time - US & Canada)
+
+
+
+<br />
+
+## Weekly Meeting
+
+We meet twice a week from 09:00pm - 10:00 (Pacific Time - US & Canada) on Wednesday and Sunday
+
+
