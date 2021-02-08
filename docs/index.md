@@ -13,7 +13,7 @@ title:  Home
 - [Final](final.html)
 
 ### Team Members 
-[Team member details]: (https://kaviochen.github.io/NullCraft/team.html)
+[Team member details](https://kaviochen.github.io/NullCraft/team.html)
 
 ### Weekly Meeting
 
