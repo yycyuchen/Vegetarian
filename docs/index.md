@@ -2,6 +2,10 @@
 layout: default
 title:  Home
 ---
+<div style="text-align:center;">
+<img src="./image/home_page.jpg"  />
+</div>
+
 ### Introduction
 
 Jackson, as a carrot lover, wants to collect as many carrots as possible on his path. He hates eating meat, especially raw meat. When encountering carrots, his reward score will increase. On the contrary, when encountering meat, it will decrease. Jackson continued to explore the map and started his journey of collecting carrots.
