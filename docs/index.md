@@ -23,4 +23,4 @@ On Sundays, we assign each one what we need to do next week and on Wednesdays we
 
 ### References
 - [Markdown and format](https://github.com/mundimark/quickrefs/blob/master/HTML.md)
-- [Rewards of foods](https://minecraft.gamepedia.com/Food](https://minecraft.gamepedia.com/Food)
+- [Rewards of foods](https://minecraft.gamepedia.com/Food)
