@@ -17,9 +17,9 @@ Jackson continued to explore the map and started his journey of collecting carro
 
 ### Reports:
 
-- [Proposal](proposal.html)
-- [Status](status.html)
-- [Final](final.html)
+- [Proposal](https://kaviochen.github.io/NullCraft/proposal.html)
+- [Status](https://kaviochen.github.io/NullCraft/status.html)
+- [Final](https://kaviochen.github.io/NullCraft/final.html)
 
 ### Team Members 
 [Team member details](https://kaviochen.github.io/NullCraft/team.html)
