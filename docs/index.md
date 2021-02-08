@@ -2,7 +2,7 @@
 layout: default
 title:  Home
 ---
-<div style="text-align:center;">
+<div style="text-align:left;">
 <img src="./image/home_page.jpg"  />
 </div>
 
