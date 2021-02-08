@@ -13,5 +13,6 @@ title:  Home
 - [Final](final.html)
 
 ### References
-Markdown and format: [HTML <-> Markdown Quick Reference (Cheat Sheet)]: https://github.com/mundimark/quickrefs/blob/master/HTML.md
+Markdown and format: [HTML <-> Markdown Quick Reference (Cheat Sheet)][quickref].  
+[quickref]: https://github.com/mundimark/quickrefs/blob/master/HTML.md
 Rewards of foods: [https://minecraft.gamepedia.com/Food](https://minecraft.gamepedia.com/Food)
