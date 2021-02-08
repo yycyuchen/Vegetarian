@@ -10,6 +10,12 @@ Compared with proposal, we made some changes and confirmed more detailed rules. 
 
 ### Evaluation
 
+***Qualitative:***
+
+<br />
+
+***Quantitative:***
+
 ### Remaining Goals 
 
 ### Challenges
