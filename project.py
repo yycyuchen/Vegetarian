@@ -200,7 +200,7 @@ class CarrotCollector(gym.Env):
                 if (rand < 0.15):
                     temp = [i, j]
                     if temp not in carrot_map:
-                        temp_rand = randint(0,1)
+                        temp_rand = random.randint(0,1)
                         if temp_rand == 0:
                             mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='mutton' />".format(temp[0],temp[1])
                         else:
