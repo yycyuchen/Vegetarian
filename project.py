@@ -18,7 +18,7 @@ from gym.spaces import Discrete, Box
 from ray.rllib.agents import ppo
 
 
-class DiamondCollector(gym.Env):
+class CarrotCollector(gym.Env):
 
     def __init__(self, env_config):  
         # Static Parameters
@@ -171,6 +171,7 @@ class DiamondCollector(gym.Env):
                 setWallGlass_length += "<DrawBlock x='{}' y='{}' z='51' type='stained_glass' colour='PINK' />".format(x,y)
                 setWallGlass_length += "<DrawBlock x='{}' y='{}' z='-1' type='stained_glass' colour='PINK' />".format(x,y)
 
+        carrot_map = [[10,1]]
         carrot_xml = "<DrawItem x='10' y ='2' z ='1' type ='carrot' />"
         carrot_location = [10,1]
         for i in range(0, self.width):
@@ -185,10 +186,26 @@ class DiamondCollector(gym.Env):
                 carrot_location[0] = carrot_location[0] + 1
                 carrot_location[1] = carrot_location[1] + 1
             
-            if carrot_location[1] > 50:
-                carrot_location[1] = 50
-                
+            if carrot_location[0] > 20:
+                carrot_location[0] = 20
+
+            temp = [carrot_location[0], carrot_location[1]]
+            carrot_map.append(temp)    
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(carrot_location[0], carrot_location[1])
+        
+        mutton_xml = ""
+        for i in range(0, self.length):
+            for j in range(0, self.width):
+                rand = random.uniform(0,1)
+                if (rand < 0.15):
+                    temp = [i, j]
+                    if temp not in carrot_map:
+                        temp_rand = randint(0,1)
+                        if temp_rand == 0:
+                            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='mutton' />".format(temp[0],temp[1])
+                        else:
+                            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='cooked_mutton' />".format(temp[0],temp[1])
+
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -213,6 +230,7 @@ class DiamondCollector(gym.Env):
                                 setWallGlass_length + \
                                 setWallGlass_width  + \
                                 carrot_xml + \
+                                mutton_xml + \
                                 '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='10'  y='1' z='0' type='redstone_block' />
                             </DrawingDecorator>
@@ -356,7 +374,7 @@ class DiamondCollector(gym.Env):
 
 if __name__ == '__main__':
     ray.init()
-    trainer = ppo.PPOTrainer(env=DiamondCollector, config={
+    trainer = ppo.PPOTrainer(env=CarrotCollector, config={
         'env_config': {},           # No environment parameters to configure
         'framework': 'torch',       # Use pyotrch instead of tensorflow
         'num_gpus': 0,              # We aren't using GPUs
