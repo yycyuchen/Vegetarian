@@ -362,7 +362,7 @@ class CarrotCollector(gym.Env):
         returns_smooth = np.convolve(self.returns[1:], box, mode='same')
         plt.clf()
         plt.plot(self.steps[1:], returns_smooth)
-        plt.title('NullCraft')
+        plt.title('Vegetarian')
         plt.ylabel('Return')
         plt.xlabel('Steps')
         plt.savefig('returns.png')
