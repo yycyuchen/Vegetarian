@@ -8,9 +8,9 @@ title:  Home
 
 ### Introduction
   
-Jackson, as a carrot lover, wants to collect as many carrots as possible on his path. He hates eating meat, especially raw meat.  
-When encountering carrots, his reward score will increase. On the contrary, when encountering meat, it will decrease. 
-Jackson continued to explore the map and started his journey of collecting carrots.
+Jackson, as a carrot lover, wants to collect as many carrots as possible on his path. As a vegetarian, Jackson wants to pick up more carrots.  
+He hates eating meat, especially raw meat. When encountering carrots, his reward score will increase. On the contrary, when encountering meat,  
+he will lose reward scores. Jackson continued to explore the map and started his journey of collecting carrots.
 
 ### Source code
 [https://github.com/kaviochen/NullCraft](https://github.com/kaviochen/NullCraft)
