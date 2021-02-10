@@ -13,16 +13,16 @@ He hates eating meat, especially raw meat. When encountering carrots, his reward
 he will lose reward scores. Jackson continued to explore the map and started his journey of collecting carrots.
 
 ### Source code
-[https://github.com/kaviochen/NullCraft](https://github.com/kaviochen/NullCraft)
+[https://github.com/kaviochen/Vegetarian](https://github.com/kaviochen/Vegetarian)
 
 ### Reports:
 
-- [Proposal](https://kaviochen.github.io/NullCraft/proposal.html)
-- [Status](https://kaviochen.github.io/NullCraft/status.html)
-- [Final](https://kaviochen.github.io/NullCraft/final.html)
+- [Proposal](https://kaviochen.github.io/Vegetarian/proposal.html)
+- [Status](https://kaviochen.github.io/Vegetarian/status.html)
+- [Final](https://kaviochen.github.io/Vegetarian/final.html)
 
 ### Team Members 
-[Team member details](https://kaviochen.github.io/NullCraft/team.html)
+[Team member details](https://kaviochen.github.io/Vegetarian/team.html)
 
 ### Weekly Meeting
 
