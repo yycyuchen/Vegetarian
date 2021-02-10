@@ -11,15 +11,15 @@ The original idea of our group was that Jackson could walk different paths from 
 
 ### Approach
 #### Environment/ Minecraft Map
-length: 20
-width: 50
-stained glass wall: 3
+length: 20  
+width: 50  
+stained glass wall: 3  
 <br />  
 
 #### Reward System
-Carrot: +5
-Cooked_mutton: -1
-Mutton: -2
+Carrot: +5  
+Cooked_mutton: -1  
+Mutton: -2  
 <br />
 
 #### Actions of agent
