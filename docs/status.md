@@ -10,24 +10,46 @@ title:  Status
 The original idea of our group was that Jackson could walk different paths from the starting point (emerald_block) to the end point (redstone_block). During the journey, he will try to pick up different foods representing different reward scores and or the highest score. With the in-depth study of AI algorithms, we decided to make our project more challenging. Compared with proposal, we made some changes and confirmed more detailed rules. Jackson, as a vegetarian, wants to get more carrots. He will explore on a 20 * 50 size map and wants to collect more carrots. At the same time, he also hates meat, especially raw meat. In our project, we defined the reward score of the system. According to Jackson's preferences, we set Jackson to get +5 reward scores when he collects carrots. When he touches meat, Jackson will get -1 reward scores. What's worse is that when he touches raw meat, he will get -2 reward scores. This means that Jackson can only go to the adjacent grid in order to get consecutive carrots to get the highest score. Jackson will stop if he has collected all the carrots.
 
 ### Approach
+#### Environment/ Minecraft Map
+length: 20
+width: 50
+stained glass wall: 3
+<br />  
 
+#### Reward System
+Carrot: +5
+Cooked_mutton: -1
+Mutton: -2
+<br />
+
+#### Actions of agent
+1. Action 0: Move forward for 1 block.
+2. Action 1: Turn 1 which is 90 degrees to the right
+3. Action 1: Turn -1 which is 90 degrees to the left
+<br />
+
+#### Machine Learning Algorithms
+According to assignment 2, we used the on-policy algorithm optimization (PPO). PPO is a new objective function can be updated in multiple training steps in small batches, and then the best strategy can be selected through this strategy. PPO is a built-in trainer of RLlib, it solves the problem of difficult to determine the step length
 ### Evaluation
 
 ***Qualitative:***
-
+Vegetarian Jackson wants to get more carrots. From the midpoint of the length of the map as the starting point, move and “turn” actions. In the beginning, Jackson moved and turned randomly on the map. Through observation of Jackson, he mostly walked towards the wall. After a period of study, Jackson knew to move in the direction of food and rarely hit the wall. After 20,000 steps, Jackson obtained a higher reward score and the score tended to improve.
 <br />
 
 ***Quantitative:***
-
+We tested Jackson's discrete and continued reward scores respectively. From the chart, we can find that the discrete relatively obtains a higher reward score. Below we can see the Jackson rewards return graph. Jackson gets a +5 reward every time he gets a carrot, and when he encounters Cooked_mutton and mutton, he has a penalty of -1 and -2 respectively. Through the icon, we found that Jackson's score fluctuated up and down. This may be a random map that prevented Jackson from finding other ways to improve the reward score.
+<br />
 ### Remaining Goals 
+We are trying to add a judgment to the algorithm if we encounter a stained glass wall, Jackson will turn the opposite direction and try to return to the ‘carrot’ route to collect carrots. This can effectively reduce the pre-learning time and improve efficiency. At the same time, we also try to make Jackson realize faster if he picks up Cooked_mutton or mutton, it means he has moved away from the ‘carrot’ route. He needs to find and return to the ‘carrot’ route. We still need to improve Jackson's rotation accuracy so that he does not waste time by rotating randomly on the map.
 
 ### Challenges
-
+Currently, Jackson has not improved significantly after a period of study. It may be that Jackson did not learn enough steps. We are also trying to use Q-learning to improve Jackson's reward score. We found that Jackson hardly picked up all the carrots and sometimes wasted time by spinning randomly on the map. We don't know how to make Jackson pick up all the carrots in a limited time. If we get stuck we might ask our TA Kolby for some advice or implementation strategies.
 
 ### Resources Used
 
 - [Malmo XML Schema Documentation](https://microsoft.github.io/malmo/0.14.0/Schemas/Mission.html)
 - [Malmo XML template](https://canvas.eee.uci.edu/courses/34142/quizzes/144375)
+- [RL — Proximal Policy Optimization (PPO) Explained](https://jonathan-hui.medium.com/rl-proximal-policy-optimization-ppo-explained-77f014ec3f12)
 - [Q-Learning Wiki](https://en.wikipedia.org/wiki/Q-learning)
 - [Simple Reinforcement Learning:Q-learning](https://towardsdatascience.com/simple-reinforcement-learning-q-learning-fcddc4b6fe56)
 - [Q-Learning Algorithm](https://towardsdatascience.com/a-beginners-guide-to-q-learning-c3e2a30a653c)
