@@ -39,6 +39,20 @@ Vegetarian Jackson wants to get more carrots. From the midpoint of the length of
 ***Quantitative:***
 We tested Jackson's discrete and continued reward scores respectively. From the chart, we can find that the discrete relatively obtains a higher reward score. Below we can see the Jackson rewards return graph. Jackson gets a +5 reward every time he gets a carrot, and when he encounters Cooked_mutton and mutton, he has a penalty of -1 and -2 respectively. Through the icon, we found that Jackson's score fluctuated up and down. This may be a random map that prevented Jackson from finding other ways to improve the reward score.
 <br />
+
+
+### Continuous Movement
+<div style="text-align:left;">
+<img src="./image/continuous.png" height="70%" width="70%" />
+</div>
+
+
+### Discrete Movement
+<div style="text-align:left;">
+<img src="./image/Discrete.png" height="70%" width="70%" />
+</div>  
+
+
 ### Remaining Goals 
 We are trying to add a judgment to the algorithm if we encounter a stained glass wall, Jackson will turn the opposite direction and try to return to the ‘carrot’ route to collect carrots. This can effectively reduce the pre-learning time and improve efficiency. At the same time, we also try to make Jackson realize faster if he picks up Cooked_mutton or mutton, it means he has moved away from the ‘carrot’ route. He needs to find and return to the ‘carrot’ route. We still need to improve Jackson's rotation accuracy so that he does not waste time by rotating randomly on the map.
 
