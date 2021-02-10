@@ -3,7 +3,7 @@ layout: default
 title:  Home
 ---
 <div style="text-align:left;">
-<img src="./image/home_page.jpg"  />
+<img src="./image/home_page.jpg"{:height="70%" width="70%"} />
 </div>
 
 ### Introduction
