@@ -194,18 +194,27 @@ class CarrotCollector(gym.Env):
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(carrot_location[0], carrot_location[1])
         
         mutton_xml = ""
+        muttons_map = []
         for i in range(0, self.length):
             for j in range(0, self.width):
                 rand = random.uniform(0,1)
                 if (rand < 0.15):
                     temp = [i, j]
                     if temp not in carrot_map:
+                        muttons_map.append(temp)
                         temp_rand = random.randint(0,1)
                         if temp_rand == 0:
                             mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='mutton' />".format(temp[0],temp[1])
                         else:
                             mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='cooked_mutton' />".format(temp[0],temp[1])
 
+        grass_xml = ""
+        for i in carrot_map:
+            grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(i[0],i[1])
+
+        bedrock_xml = ""
+        for i in muttons_map:
+            bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(i[0],i[1])
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -231,6 +240,8 @@ class CarrotCollector(gym.Env):
                                 setWallGlass_width  + \
                                 carrot_xml + \
                                 mutton_xml + \
+                                grass_xml + \
+                                bedrock_xml + \
                                 '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='10'  y='1' z='0' type='redstone_block' />
                             </DrawingDecorator>
@@ -315,6 +326,7 @@ class CarrotCollector(gym.Env):
             allow_break_action: <bool> whether the agent is facing a diamond
         """
         obs = np.zeros((2 * self.obs_size * self.obs_size, ))
+
         allow_break_action = False
 
         while world_state.is_mission_running:
@@ -327,12 +339,14 @@ class CarrotCollector(gym.Env):
                 # First we get the json from the observation API
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
-
+                
                 # Get observation
                 grid = observations['floorAll']
+                
                 for i, x in enumerate(grid):
-                    obs[i] = x == 'diamond_ore' or x == 'lava'
+                    obs[i] = x == 'bedrock' or x == 'grass'
 
+                
                 # Rotate observation with orientation of agent
                 obs = obs.reshape((2, self.obs_size, self.obs_size))
                 yaw = observations['Yaw']
