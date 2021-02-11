@@ -273,9 +273,6 @@ class CarrotCollector(gym.Env):
                                 </Grid>
                             </ObservationFromGrid>
                             <AgentQuitFromReachingCommandQuota total="'''+str(3*self.max_episode_steps)+'''" />
-                            <AgentQuitFromTouchingBlockType>
-                                <Block type="bedrock" />
-                            </AgentQuitFromTouchingBlockType>
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
