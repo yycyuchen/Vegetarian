@@ -25,7 +25,7 @@ Mutton: -2
 #### Actions of agent
 1. Action 0: Move forward for 1 block.
 2. Action 1: Turn 1 which is 90 degrees to the right
-3. Action 1: Turn -1 which is 90 degrees to the left
+3. Action 2: Turn -1 which is 90 degrees to the left
 <br />
 
 #### Machine Learning Algorithms
@@ -66,7 +66,7 @@ We tested Jackson's discrete and continued reward scores respectively. From the 
 We are trying to add a judgment to the algorithm when Jackson faces to a stained glass wall. Jackson will turn the opposite direction and try to return to the ‘carrot’ route to collect carrots. This can effectively reduce the pre-learning time and improve efficiency. At the same time, we also try to make Jackson realize faster if he picks up Cooked_mutton or mutton, it means he has moved away from the ‘carrot’ route. He needs to find and return to the ‘carrot’ route. We still need to improve Jackson's rotation accuracy so that he does not waste time by rotating randomly on the map. In order to increase the difficulty and increase the reward. We intend to add obstacles such as rocks. At the same time, Jackson will also have a new action ‘Jump’. He needs to judge whether he needs to jump over obstacles. As the difficulty increases, in the second half of the ‘carrot’ path, I will set a small amount of golden_carrot. He will be worth 50 reward scores, which is higher than ordinary carrots.
 
 ### Challenges
-Currently, Jackson has not improved significantly after a period of study. It may be that Jackson did not learn enough steps. We are also trying to use Q-learning to improve Jackson's reward score, but not sure whether it can improve Jackson a lot. We found that Jackson hardly picked up all the carrots and sometimes wasted time by spinning randomly on the map. We don't know how to make Jackson pick up all the carrots in a limited time. We are still studying whether different algorithms are suitable for different movement styles. In other words, whether discrete and continuous movements change the efficiency of Jackson learning due to different algorithms. If we get stuck we might ask our TA Kolby for some advice or implementation strategies.
+Currently, Jackson has not improved significantly after a period of study. It may be that Jackson did not learn enough steps. We are also trying to use Q-learning to improve Jackson's reward score, but not sure whether it can improve Jackson a lot. We found that Jackson hardly picked up all the carrots and sometimes wasted time by spinning randomly on the map. We don't know how to make Jackson pick up all the carrots in a limited time. We are still studying whether different algorithms are suitable for different movement styles. In other words, whether discrete and continuous movements change the efficiency of Jackson learning due to different algorithms. In addition, we found that get_observation function uses the observation API to get items around the agent(5 * 5). it return the  x, y, z location, we need to  convert these data into grid location around the agent.If we get stuck we might ask our TA Kolby for some advice or implementation strategies.
 
 ### Resources Used
 
