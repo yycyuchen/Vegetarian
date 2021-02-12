@@ -29,7 +29,7 @@ Mutton: -2
 <br />
 
 #### Machine Learning Algorithms
-According to assignment 2, we used the on-policy algorithm optimization (PPO). PPO is a new objective function can be updated in multiple training steps in small batches, and then the best strategy can be selected through this strategy. PPO is a built-in trainer of RLlib, it solves the problem of difficult to determine the step length. 
+According to assignment 2, we used the on-policy algorithm Proximal Policy Optimization(PPO). PPO is a new objective function can be updated in multiple training steps in small batches, and then the best strategy can be selected through this strategy. PPO is a built-in trainer of RLlib, it solves the problem of difficult to determine the step length. 
 <div style="text-align:left;">
 <img src="./image/ppo_arc.png" height="60%" width="60%" />
 </div>
