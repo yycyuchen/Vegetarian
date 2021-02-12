@@ -58,7 +58,7 @@ We tested Jackson's discrete and continued reward scores respectively. From the 
 
 #### Discrete Movement
 <div style="text-align:left;">
-<img src="./image/Discrete.png" height="70%" width="70%" />
+<img src="./image/discrete.png" height="70%" width="70%" />
 </div>  
 
 
