@@ -47,7 +47,7 @@ Vegetarian Jackson wants to get more carrots. From the midpoint of the length of
 <br />
 
 ***Quantitative:***
-We tested Jackson's discrete and continued reward scores respectively. From the graphs, we can find that the discrete relatively obtains a higher reward score. Below we can see the Jackson's reward scores. Jackson gets a +5 reward scores every time he gets a carrot, and when he encounters Cooked_mutton and mutton, he has a penalty of -1 and -2 respectively. Through the icon, we found that Jackson's score fluctuated up and down. This may be a random map that prevented Jackson from finding other ways to improve the reward score.
+We tested Jackson's discrete and continuous movement reward scores respectively. From the graphs, we can find that the discrete relatively obtains a higher reward score. Below we can see the Jackson's reward scores. Jackson gets a +5 reward scores every time he gets a carrot, and when he encounters Cooked_mutton and mutton, he has a penalty of -1 and -2 respectively. Through the icon, we found that Jackson's score fluctuated up and down. This may be a random map that prevented Jackson from finding other ways to improve the reward score.
 <br />
 
 
