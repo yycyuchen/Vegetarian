@@ -4,7 +4,11 @@ title:  Status
 ---
 ### Video Summary
 
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=sRbSulbb9Xo&feature=youtu.be" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<br />
 
+[Video](https://www.youtube.com/watch?v=sRbSulbb9Xo&feature=youtu.be)
+<br>
 ### Project Summary
 
 The original idea of our group was that Jackson could walk different paths from the starting point (emerald_block) to the end point (redstone_block). During the journey, he will try to pick up different foods representing different reward scores and or the highest score. With the in-depth study of AI algorithms, we decided to make our project more challenging. Compared with proposal, we made some changes and confirmed more detailed rules. Jackson, as a vegetarian, wants to get more carrots. He will explore on a 20 * 50 size map and wants to collect more carrots. At the same time, he also hates meat, especially raw meat. In our project, we defined the reward score of the system. According to Jackson's preferences, we set Jackson to get +5 reward scores when he collects carrots. When he touches meat, Jackson will get -1 reward scores. What's worse is that when he touches raw meat, he will get -2 reward scores. This means that Jackson can only go to the adjacent grid in order to get consecutive carrots to get the highest score. Jackson will stop if he has collected all the carrots.
