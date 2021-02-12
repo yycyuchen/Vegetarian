@@ -4,7 +4,8 @@ title:  Status
 ---
 ### Video Summary
 
-<iframe width="560" height="315" src="https://youtu.be/sRbSulbb9Xo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://youtu.be/sRbSulbb9Xo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>  
+
 <br />
 
 [Video link](https://youtu.be/sRbSulbb9Xo)
