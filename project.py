@@ -113,8 +113,7 @@ class Vegetarian(gym.Env):
         #     self.first = False
         # self.agent_host.sendCommand("move 1")
 
-        # time.sleep(2.0)
-        time.sleep(2.0)
+        #time.sleep(2.0)
         
         command = self.action_dict[action]
         if command != 'attack 1' or self.allow_break_action:
