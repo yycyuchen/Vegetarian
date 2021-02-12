@@ -38,7 +38,8 @@ The PPO used in our project is an on-policy algorithm, which can only use the da
 <div style="text-align:left;">
 <img src="./image/RL.png" height="55%" width="55%" />
 </div>
-The idea of PPO comes from the similar idea of reinforcement learning in lecture. From the mind map below, we can understand that Jackson can pick up food as he explores the map. In this environment, different foods represent different rewards and feedback to Jackson. Jackson can observe and optimize and then decide his next move. In Jackson's study, he will repeat the above steps and update the policy.
+The idea of PPO comes from the similar idea of reinforcement learning in lecture. From the mind map below, we can understand that Jackson can pick up food as he explores the map. In this environment, different foods represent different rewards and feedback to Jackson. Jackson can observe and optimize and then decide his next move. In Jackson's study, he will repeat the above steps and update the policy.  
+
 ### Evaluation
 
 ***Qualitative:***
