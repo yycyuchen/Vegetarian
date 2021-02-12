@@ -16,33 +16,35 @@ import random
 import gym, ray
 from gym.spaces import Discrete, Box
 from ray.rllib.agents import ppo
+import os
 
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-class CarrotCollector(gym.Env):
+class Vegetarian(gym.Env):
 
     def __init__(self, env_config):  
         # Static Parameters
         self.length = 20
         self.width = 50
+        self.size = 50
         self.reward_density = .1
-        self.penalty_density = .02
+        self.penalty_density = 0.02
         self.obs_size = 5
-        self.max_episode_steps = 100
+        self.max_episode_steps = 50
         self.log_frequency = 10
-        #color = "PINK"
+        self.target_step = 50000
         self.action_dict = {
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
-            3: 'attack 1'  # Destroy block
+            # 3: 'attack 1'  # Destroy block
         }
 
         # Rllib Parameters
-        #self.action_space = Discrete(len(self.action_dict))
-        self.action_space = Box(low = np.array([-1,-1]), high = np.array([1,1]), dtype=np.float32)
-        self.observation_space = Box(0, 1, shape=(2 * self.obs_size * self.obs_size, ), dtype=np.float32)
-        
-        
+        self.action_space = Discrete(len(self.action_dict))
+        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size + 1, ), dtype=np.float32)
+
+        # print(Box);
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
         try:
@@ -52,7 +54,7 @@ class CarrotCollector(gym.Env):
             print(self.agent_host.getUsage())
             exit(1)
 
-        # DiamondCollector Parameters
+        # Vegetarian Parameters
         self.obs = None
         self.allow_break_action = False
         self.episode_step = 0
@@ -78,13 +80,14 @@ class CarrotCollector(gym.Env):
         self.episode_step = 0
 
         # Log
+        # print("RESET... "+ str(self.returns))
         if len(self.returns) > self.log_frequency + 1 and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
 
         # Get Observation
         self.obs, self.allow_break_action = self.get_observation(world_state)
-
+        
         return self.obs
 
     def step(self, action):
@@ -102,48 +105,26 @@ class CarrotCollector(gym.Env):
         """
 
         # Get Action
-        #command = self.action_dict[action]
-        #if command != 'attack 1' or self.allow_break_action:
-         #   self.agent_host.sendCommand(command)
-         #   time.sleep(.2)
-         #   self.episode_step += 1
+        # print("ACTION:")
+        # print(action)
 
+        # if(self.first):
+        #     self.agent_host.sendCommand("turn 1")
+        #     self.first = False
+        # self.agent_host.sendCommand("move 1")
+
+        # time.sleep(2.0)
+        time.sleep(2.0)
+        
+        command = self.action_dict[action]
+        if command != 'attack 1' or self.allow_break_action:
+            self.agent_host.sendCommand(command)
+            time.sleep(.2)
+            self.episode_step += 1
+            # print(command)
         # Get Observation
         world_state = self.agent_host.getWorldState()
-
-        #commandMove = 'move ' + str(action[0])
-        #self.agent_host.sendCommand(commandMove)
-        #time.sleep(0.2)
-
         
-        # commandTurn = 'turn ' + str(action[1])
-        # self.agent_host.sendCommand(commandTurn)
-        # time.sleep(0.2)
-        
-        # if action[2] > 0 and self.allow_break_action:
-        #     #self.agent_host.sendCommand('move 0')
-        #     self.agent_host.sendCommand('turn 0')
-        #     #self.agent_host.sendCommand('attack 1')
-        #     for i in range(10):
-        #         world_state = self.agent_host.getWorldState()
-        #         self.obs, self.allow_break_action = self.get_observation(world_state)
-        #         if self.allow_break_action:
-        #             time.sleep(.1)
-        #         else:
-        #             break
-            #self.agent_host.sendCommand('move 1')
-            #self.agent_host.sendCommand('attack 0')
-        
-        command0 = "move " + str(action[0])
-        command1 = "turn " + str(action[1])
-
-        self.agent_host.sendCommand(command0)
-        self.agent_host.sendCommand(command1)
-        time.sleep(.2)
-        
-        self.episode_step += 1 
-
-        world_state = self.agent_host.getWorldState()
         for error in world_state.errors:
             print("Error:", error.text)
         self.obs, self.allow_break_action = self.get_observation(world_state) 
@@ -156,6 +137,9 @@ class CarrotCollector(gym.Env):
         for r in world_state.rewards:
             reward += r.getValue()
         self.episode_return += reward
+
+        print("REWARD: " + str(self.episode_return))
+
 
         return self.obs, reward, done, dict()
 
@@ -218,11 +202,9 @@ class CarrotCollector(gym.Env):
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
                     <About>
                         <Summary>Carrot Collector</Summary>
                     </About>
-
                     <ServerSection>
                         <ServerInitialConditions>
                             <Time>
@@ -248,7 +230,6 @@ class CarrotCollector(gym.Env):
                             <ServerQuitWhenAnyAgentFinishes/>
                         </ServerHandlers>
                     </ServerSection>
-
                     <AgentSection mode="Survival">
                         <Name>CarrotCollector</Name>
                         <AgentStart>
@@ -266,12 +247,11 @@ class CarrotCollector(gym.Env):
                             <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
-                            <ObservationFromGrid>
-                                <Grid name="floorAll">
-                                    <min x="-'''+str(int(self.obs_size/2))+'''" y="-1" z="-'''+str(int(self.obs_size/2))+'''"/>
-                                    <max x="'''+str(int(self.obs_size/2))+'''" y="0" z="'''+str(int(self.obs_size/2))+'''"/>
-                                </Grid>
-                            </ObservationFromGrid>
+                            
+                            <ObservationFromNearbyEntities>
+                                <Range name="floorAll" xrange='3' yrange='2' zrange='3' />                                
+                            </ObservationFromNearbyEntities>
+                           
                             <AgentQuitFromReachingCommandQuota total="'''+str(3*self.max_episode_steps)+'''" />
                         </AgentHandlers>
                     </AgentSection>
@@ -292,7 +272,7 @@ class CarrotCollector(gym.Env):
 
         for retry in range(max_retries):
             try:
-                self.agent_host.startMission( my_mission, my_clients, my_mission_record, 0, 'DiamondCollector' )
+                self.agent_host.startMission( my_mission, my_clients, my_mission_record, 0, 'Vegetarian' )
                 break
             except RuntimeError as e:
                 if retry == max_retries - 1:
@@ -322,44 +302,78 @@ class CarrotCollector(gym.Env):
             observation: <np.array> the state observation
             allow_break_action: <bool> whether the agent is facing a diamond
         """
-        obs = np.zeros((2 * self.obs_size * self.obs_size, ))
+        # obs = np.zeros((2 * self.obs_size * self.obs_size, ))
+        # allow_break_action = False
+        edge_wall_action = False
+        reward_action = False
 
-        allow_break_action = False
 
+        obs = np.zeros(self.obs_size * self.obs_size + 1)
+        
         while world_state.is_mission_running:
-            time.sleep(0.2)
-            world_state = self.agent_host.getWorldState()
-            if len(world_state.errors) > 0:
-                raise AssertionError('Could not load grid.')
+            time.sleep(0.10)
+            
+            grid = None
+            retry = 0;
+            while grid is None and retry < 100:
+                retry += 1;
+                world_state = self.agent_host.getWorldState()
+                if len(world_state.errors) > 0:
+                    raise AssertionError('Could not load grid.')
 
-            if world_state.number_of_observations_since_last_state > 0:
-                # First we get the json from the observation API
-                msg = world_state.observations[-1].text
-                observations = json.loads(msg)
-                
-                # Get observation
-                grid = observations['floorAll']
-                
-                for i, x in enumerate(grid):
-                    obs[i] = x == 'bedrock' or x == 'grass'
+                if world_state.number_of_observations_since_last_state > 0:
+                    # First we get the json from the observation API
+                    msg = world_state.observations[-1].text
+                    observations = json.loads(msg)
+                    # print(observations['XPos'], observations['YPos'],observations['ZPos'])
+                    # Get observation                    
+                    try:
+                        grid = observations['floorAll']
+                    except:
+                        print("Retry floorALL error")
+                        time.sleep(0.20)
+                        continue
 
-                
-                # Rotate observation with orientation of agent
-                obs = obs.reshape((2, self.obs_size, self.obs_size))
-                yaw = observations['Yaw']
-                if yaw >= 247 and yaw < 293:
-                    obs = np.rot90(obs, k=1, axes=(1, 2))
-                elif yaw >= 327 or yaw < 23:
-                    obs = np.rot90(obs, k=2, axes=(1, 2))
-                elif yaw >= 67 and yaw < 113:
-                    obs = np.rot90(obs, k=3, axes=(1, 2))
-                obs = obs.flatten()
+                    agent = grid[0];
+                    # print(grid)
+                    for item in grid:
+                        index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
+                        # print(item['x'], item['z'], index)
 
-                allow_break_action = observations['LineOfSight']['type'] == 'diamond_ore'
-                
-                break
+                        if(item['name'] == 'carrot'):
+                            obs[index] = 1
+                        if(item['name'] == 'cooked_mutton'):
+                            obs[index] = -0.5
+                        if(item['name'] == 'mutton'):
+                            obs[index] = -1
 
-        return obs, allow_break_action
+
+                    # for i, x in enumerate(grid):
+                    #     obs[i] = x == 'iron_ore' or x == 'carrot'
+
+
+                    # Rotate observation with orientation of agent
+                    # obs = obs.reshape((2, self.obs_size, self.obs_size))
+                    # yaw = observations['Yaw']
+                    # if yaw >= 225 and yaw < 315:
+                    #     obs = np.rot90(obs, k=1, axes=(1, 2))
+                    # elif yaw >= 315 or yaw < 45:
+                    #     obs = np.rot90(obs, k=2, axes=(1, 2))
+                    # elif yaw >= 45 and yaw < 135:
+                    #     obs = np.rot90(obs, k=3, axes=(1, 2))
+
+
+                    obs[-1] = observations['Yaw'] / 360
+
+                    # print(obs)
+
+                    edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
+
+            break
+
+        return obs, edge_wall_action
+        # return obs, allow_break_action
+
 
     def log_returns(self):
         """
@@ -377,15 +391,19 @@ class CarrotCollector(gym.Env):
         plt.ylabel('Return')
         plt.xlabel('Steps')
         plt.savefig('returns.png')
-
         with open('returns.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
                 f.write("{}\t{}\n".format(step, value))
         
+        if self.steps[1:][-1] > self.target_step:
+            print("EXIT")
+            print(self.steps[1:][-1])
+            sys.exit()  
+
 
 if __name__ == '__main__':
     ray.init()
-    trainer = ppo.PPOTrainer(env=CarrotCollector, config={
+    trainer = ppo.PPOTrainer(env=Vegetarian, config={
         'env_config': {},           # No environment parameters to configure
         'framework': 'torch',       # Use pyotrch instead of tensorflow
         'num_gpus': 0,              # We aren't using GPUs
