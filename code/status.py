@@ -32,7 +32,7 @@ class Vegetarian(gym.Env):
         self.obs_size = 5
         self.max_episode_steps = 50
         self.log_frequency = 10
-        self.target_step = 150000
+        self.target_step = 50000
         self.action_dict = {
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
@@ -42,7 +42,7 @@ class Vegetarian(gym.Env):
 
         # Rllib Parameters
         self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size + 1, ), dtype=np.float32)
+        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size, ), dtype=np.float32)
 
         # print(Box);
         # Malmo Parameters
@@ -136,7 +136,7 @@ class Vegetarian(gym.Env):
             reward += r.getValue()
         self.episode_return += reward
 
-        # print("REWARD: " + str(self.episode_return))
+        print("REWARD: " + str(self.episode_return))
 
 
         return self.obs, reward, done, dict()
@@ -306,14 +306,15 @@ class Vegetarian(gym.Env):
         reward_action = False
 
 
-        obs = np.zeros(self.obs_size * self.obs_size + 1)
+        obs = np.zeros(self.obs_size * self.obs_size)
         
         while world_state.is_mission_running:
             time.sleep(0.10)
             
             grid = None
+            yaw = None
             retry = 0;
-            while grid is None and retry < 100:
+            while (grid is None or yaw is None) and retry < 100:
                 retry += 1;
                 world_state = self.agent_host.getWorldState()
                 if len(world_state.errors) > 0:
@@ -327,6 +328,7 @@ class Vegetarian(gym.Env):
                     # Get observation                    
                     try:
                         grid = observations['floorAll']
+                        yaw = observations['Yaw']
                     except:
                         print("Retry floorALL error")
                         time.sleep(0.20)
@@ -346,22 +348,21 @@ class Vegetarian(gym.Env):
                             obs[index] = -1
 
 
-                    # for i, x in enumerate(grid):
-                    #     obs[i] = x == 'iron_ore' or x == 'carrot'
-
-
                     # Rotate observation with orientation of agent
-                    # obs = obs.reshape((2, self.obs_size, self.obs_size))
-                    # yaw = observations['Yaw']
-                    # if yaw >= 225 and yaw < 315:
-                    #     obs = np.rot90(obs, k=1, axes=(1, 2))
-                    # elif yaw >= 315 or yaw < 45:
-                    #     obs = np.rot90(obs, k=2, axes=(1, 2))
-                    # elif yaw >= 45 and yaw < 135:
-                    #     obs = np.rot90(obs, k=3, axes=(1, 2))
+                    obs = obs.reshape((1, self.obs_size, self.obs_size))
 
-
-                    obs[-1] = observations['Yaw'] / 360
+                    # print(obs)
+                    
+                    if yaw >= 225 and yaw < 315:
+                        obs = np.rot90(obs, k=1, axes=(1, 2))
+                    elif yaw >= 315 or yaw < 45:
+                        obs = np.rot90(obs, k=2, axes=(1, 2))
+                    elif yaw >= 45 and yaw < 135:
+                        obs = np.rot90(obs, k=3, axes=(1, 2))
+                    # print(obs)
+                    
+                    obs = obs.flatten()
+                    # obs[-1] = observations['Yaw'] / 360
 
                     # print(obs)
 
