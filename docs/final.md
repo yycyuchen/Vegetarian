@@ -30,7 +30,7 @@ Mutton: -2
 #### Machine Learning Algorithms
 ##### 1. Convert data
 <div style="text-align:left;">
-<img src="./image/final_tr.png" height="40%" width="60%" />
+<img src="./image/final_tr.png" height="70%" width="90%" />
 </div>
 We solved the problem of converting the observation API into a grid location around the agent Jackson. The above image shows the conversion formula we used. Get_observation function uses the observation API to get items around the agent(5 * 5) and returns the values of x, y, z. Since it is the same plane, the y value is the same. We successfully converted each x, z coordinate into a corresponding index. In our formular, the upper case "X" and "Z" represent item location and lower case 'x' and 'z'represent agent location. Here is our code below. 
 
