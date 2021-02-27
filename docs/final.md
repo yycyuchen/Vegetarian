@@ -28,7 +28,7 @@ Mutton: -2
 <br />
 
 #### Machine Learning Algorithms
-##### Convert data
+##### 1. Convert data
 <div style="text-align:left;">
 <img src="./image/transfer.png" height="60%" width="60%" />
 </div>
@@ -38,13 +38,13 @@ index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (in
 ```
 <br />
 
-##### Mutton Distribution 
+##### 2. Mutton Distribution 
 <div style="text-align:left;">
 <img src="./image/final_mut_alg.png" height="60%" width="60%" />
 </div>
 <br />
 
-##### Set Carrot Path
+##### 3. Set Carrot Path
 <div style="text-align:left;">
 <img src="./image/final_map1.png" height="60%" width="60%" />
 </div>
