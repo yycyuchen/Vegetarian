@@ -43,7 +43,7 @@ For example, our agent Jackson is now at location of our map (12, 31), and item 
 
 ##### 2. Mutton Distribution 
 <div style="text-align:left;">
-<img src="./image/final_mul.png" height="50%" width="50%" />
+<img src="./image/final_mul.png" height="20%" width="15%" />
 </div>
 <br />
 
