@@ -106,10 +106,12 @@ Here is our code for setting the mutton.
 <br />
 
 ##### ***4. Q-learning***  
+
 <div style="text-align:left;">
 <img src="./image/final_q_alg.png" height="70%" width="70%" />
 </div>
 (source: image refer from our lecture 8 notes)
+
 S: current state <br>
 A: current action <br>
 Q(S, A): old values <br>
@@ -117,6 +119,7 @@ $$\alpha:$$ learning rate <br>
 R: rewards <br>
 $$\gamma:$$ discount factor <br>
 $$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>
+
 <br/>
 We have tried using Q-learning, but it is not very stable from Jackson's results. We found that the Q-learning algorithm did not greatly improve Jackson's score. Through a lot of time learning, Jackson still has no obvious improvement after 100,000 steps. In observing Jackson's learning process, we found that it sometimes pauses when making decisions, which may also waste its learning time. After discussion with Kolby, we decided to use PPO (Proximal Policy Optimization) with rllib and ray to train the agent in a random environment.
 <br />
