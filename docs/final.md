@@ -32,7 +32,7 @@ Mutton: -2
 <div style="text-align:left;">
 <img src="./image/final_tr.png" height="70%" width="90%" />
 </div>
-We changed Jackson's observation space. Rather than Jackson simply observing the grass that has been generated and does not move, we changed the observation equation. Jackson can directly observe carrots and muttons during the learning process. We solved the problem of converting the observation API into a grid location around the agent Jackson. The above image shows the conversion formula we used. Get_observation function uses the observation API to get items around the agent(5 * 5) and returns the values of x, y, z. Since it is the same plane, the y value is the same. We successfully converted each x, z coordinate into a corresponding index. In our formular, the upper case "X" and "Z" represent item location and lower case 'x' and 'z'represent agent location. Here is our code below. 
+We changed Jackson's observation space. Rather than Jackson simply observing the grass block that has been generated which does not move, we changed the way of observation . Jackson can directly observe carrots and muttons during the learning process. Compared with observing the grass block directly, the difficulty of observing the carrot directly is that the grass block will not change. However, the carrot will disappear after being picked up by Jackson. We solved the problem of converting the observation API into a grid location around the agent Jackson. The above image shows the conversion formula we used. Get_observation function uses the observation API to get items around the agent(5 * 5) and returns the values of x, y, z. Since it is the same plane, the y value is the same. We successfully converted each x, z coordinate into a corresponding index. In our formular, the upper case "X" and "Z" represent item location and lower case 'x' and 'z'represent agent location. Here is our code below. 
 
 ```math
         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
@@ -72,7 +72,7 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
 <br />
 
 ##### ***3. Mutton Distribution***  
-In order to give Jackson a penalty, we set up a mutton next to the "carrot road". If Jackson, a vegetarian, finds meat, he will deduct points. Because the venue we set up is 20* 50. In order to ensure that mutton and carrot do not appear on the same grid, we use an isolation algorithm. As you can see in the picture below. We take mutton as the center and confirm that no carrots will be placed on the eight grids around it which indices are -21, -20, -19, -1, +1, +19, +20, +21. This prevents mutton and carrot from appearing on the same grid. In addition, we will also pay attention to the ratio of mutton to carrot. We make sure that mutton will not be too much and the agent will lose a lot of points. We will also ensure that there are too few muttons so that the agent has no chance to encounter mutton and cannot learn. Therefore, when we set the ratio of the number of muttons to the number of carrots to 3:4, the distribution of muttons is the best.
+In order to give Jackson a penalty, we set up a mutton next to the "carrot path". If Jackson, a vegetarian, picks up mutton, he will deduct points. Because the map we set up is 20* 50. In order to ensure that mutton and carrot do not appear on the same grid, we check the surrounding grids before setting up the mutton. As you can see in the image below. We take mutton as the center and confirm that no carrots will be placed on the eight grids around it which indices are -21, -20, -19, -1, +1, +19, +20, +21. This prevents mutton and carrot from appearing on the same grid. In addition, we will also pay attention to the ratio of mutton to carrot. We make sure that mutton will not be too much and the agent will lose a lot of points. We will also ensure that there are too few muttons so that the agent has no chance to encounter mutton and cannot learn. Therefore, when we set the ratio of the number of muttons to the number of carrots to 3:4, the distribution of muttons is the best.
 
 <div style="text-align:left;">
 <img src="./image/final_mul.png" height="30%" width="20%" />
@@ -108,7 +108,7 @@ Here is our code for setting the mutton.
 ##### ***4. Q-learning***  
 
 <div style="text-align:left;">
-<img src="./image/final_q_alg.png" height="70%" width="70%" />
+<img src="./image/final_q_alg.png" height="50%" width="50%" />
 </div>
 (source: image refer from our lecture 8 notes)
 
@@ -121,14 +121,14 @@ $$\gamma:$$ discount factor <br>
 $$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>
 
 <br/>
-We have tried using Q-learning, but it is not very stable from Jackson's results. We found that the Q-learning algorithm did not greatly improve Jackson's score. Through a lot of time learning, Jackson still has no obvious improvement after 100,000 steps. In observing Jackson's learning process, we found that it sometimes pauses when making decisions, which may also waste its learning time. After discussion with Kolby, we decided to use PPO (Proximal Policy Optimization) with rllib and ray to train the agent in a random environment.
+We have tried using Q-learning, but it is not very stable from Jackson's results. We found that the Q-learning algorithm did not greatly improve Jackson's score. Through a lot of time learning, Jackson still has no obvious improvement after 100,000 steps. In observing Jackson's learning process, we found that it sometimes pauses when making decisions, which may also waste its learning time. After discussion with Kolby, we decided to use PPO (Proximal Policy Optimization) with RLlib and Ray to train the agent in a random environment.
 <br />
 
 ##### ***5. Proximal Policy Optimization (PPO)***  
 PPO trains a random strategy in a strategy-based manner, which can be updated in small batches in multiple training steps, and then the best strategy can be selected through the strategy. This means that it will explore through sampling operations based on the latest version of its random strategy. PPO is the built-in trainer of RLlib, which solves the problem of difficult to determine the step length. The PPO used in our project is a strategy-based algorithm that can only be trained using the data generated by the currently optimized strategy. When Jackson uses a piece of data (status, action, reward, new status), after updating the parameters of the strategy network, the "optimization" strategy will be changed immediately. We all know that the randomness of action selection depends on initial conditions and training procedures. During the training process, PPO usually becomes less and less random as the updated rules encourage the strategy to take advantage of discovered rewards. This may cause the strategy to fall into a local optimal state. Below we provide the Pseudocode of PPO.
 
 <div style="text-align:left;">
-<img src="./image/final_ppo_alg.png" height="70%" width="70%" />
+<img src="./image/final_ppo_alg.png" height="30%" width="30%" />
 </div>
 <br />
 
