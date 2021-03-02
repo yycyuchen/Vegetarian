@@ -8,6 +8,7 @@ except:
 import sys
 import time
 import json
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import numpy as np
@@ -63,6 +64,14 @@ class Vegetarian(gym.Env):
         self.episode_return = 0
         self.returns = []
         self.steps = []
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
+        self.return_carrot = []
+        self.return_mutton = []
+        self.return_cooked_mutton = []
+
+        self.total_items = {'carrot': 0, 'mutton': 0, 'cooked_mutton': 0}
 
     def reset(self):
         """
@@ -71,6 +80,7 @@ class Vegetarian(gym.Env):
         Returns
             observation: <np.array> flattened initial obseravtion
         """
+        
         # Reset Malmo
         world_state = self.init_malmo()
 
@@ -81,8 +91,20 @@ class Vegetarian(gym.Env):
         self.episode_return = 0
         self.episode_step = 0
 
+        #reset number of items
+        self.return_carrot.append(self.num_carrot)
+        self.return_mutton.append(self.num_mutton)
+        self.return_cooked_mutton.append(self.num_cooked_mutton)
+        self.total_items['carrot'] = self.total_items['carrot'] + self.num_carrot
+        self.total_items['mutton'] = self.total_items['mutton'] + self.num_mutton
+        self.total_items['cooked_mutton'] = self.total_items['cooked_mutton'] + self.num_cooked_mutton
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
+
         # Log
         # print("RESET... "+ str(self.returns))
+        
         if len(self.returns) > self.log_frequency + 1 and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
@@ -269,6 +291,7 @@ class Vegetarian(gym.Env):
                             <DiscreteMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
+                            <ObservationFromHotBar/>
                             
                             <ObservationFromNearbyEntities>
                                 <Range name="floorAll" xrange='3' yrange='2' zrange='3' />                                
@@ -348,6 +371,30 @@ class Vegetarian(gym.Env):
                     # First we get the json from the observation API
                     msg = world_state.observations[-1].text
                     observations = json.loads(msg)
+
+                    ################################
+                    #store number of item
+                    items = ["carrot", "cooked_mutton", "mutton"]
+                    
+                    for i in range(0,9):
+                        for item in items:
+                            slot_name = u'Hotbar_' + str(i) + '_item'
+                            slot_contents = observations.get(slot_name, "")
+                            
+                            if slot_contents == item:
+                                slot_number = u'Hotbar_' + str(i) + '_size'
+                                number = observations.get(slot_number, "")
+                                if items[0] == item:
+                                    self.num_carrot = number
+                                    
+                                elif items[1] == item:
+                                    self.num_cooked_mutton = number
+                                    
+                                else:
+                                    self.num_mutton = number
+                                    
+
+                    #################################
                     # print(observations['XPos'], observations['YPos'],observations['ZPos'])
                     # Get observation                    
                     try:
@@ -418,21 +465,41 @@ class Vegetarian(gym.Env):
         with open('rewards.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
                 f.write("{}\t{}\n".format(step, value))
-        # plot the collect number of food graphs        
-        #fig = plt.figure()
-        #plt.bar(self.steps[1:],num_carrot,color="red")
-        #plt.bar(self.steps[1:],num_cooked_mutton,color="green")
-        #plt.bar(self.steps[1:],num_mutton,color="blue")
-        #plt.title("Vegetarian")
-        #plt.ylabel("Numbers")
-        #plt.xlabel("Steps")
-        #plt.show()  
-        #plt.savefig("Food number.png")
         
-        #with open('Food number.txt', 'w') as f:
-        #    for step, value in zip(self.steps[1:], self.returns[1:]):
-        #        f.write("{}\t{}\n".format(step, value))
-                
+        # plot the collect number of food graphs        
+        carrot_smooth = np.convolve(self.return_carrot[1:], box, mode='same')
+        mutton_smooth = np.convolve(self.return_mutton[1:], box, mode='same')
+        cooked_mutton_smooth = np.convolve(self.return_cooked_mutton[1:], box, mode='same')
+        plt.clf()
+
+        line1 = plt.plot(self.steps[1:], carrot_smooth, label = 'carrot', color = 'red')
+        line2 = plt.plot(self.steps[1:], mutton_smooth, label = 'mutton', color = 'blue')
+        line3 = plt.plot(self.steps[1:], cooked_mutton_smooth, label = 'cooked_mutton', color = 'green')
+        
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("Steps")
+        plt.legend(loc = "upper right")
+
+        plt.savefig("FoodNumber.png")
+        
+        with open('FoodNumber.txt', 'w') as f:
+           for step, carrot, mutton, cooked_mutton in zip(self.steps[1:], self.return_carrot[1:], self.return_mutton[1:], self.return_cooked_mutton[1:]):
+               f.write("{}\tcarrot: {}\tmutton: {}\tcooked_mutton: {}\n".format(step, carrot, mutton, cooked_mutton))
+
+        # plot total number of item
+        items = list(self.total_items.keys())
+        values = list(self.total_items.values())
+        fig = plt.figure(figsize = (10, 5)) 
+        plt.bar(items[0], values[0], color ='red', width = 0.4) 
+        plt.bar(items[1], values[1], color ='blue', width = 0.4) 
+        plt.bar(items[2], values[2], color ='green', width = 0.4) 
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("items")
+
+        plt.savefig("totalItem.png")
+               
         if self.steps[1:][-1] > self.target_step:
             print("EXIT")
             print(self.steps[1:][-1])
