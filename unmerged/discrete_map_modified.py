@@ -31,8 +31,6 @@ class Vegetarian(gym.Env):
         self.start_x = 0
         self.start_z = 0
         self.size = 50
-        self.reward_density = .1
-        self.penalty_density = 0.02
         self.obs_size = 5
         self.max_episode_steps = 100
         self.log_frequency = 10
