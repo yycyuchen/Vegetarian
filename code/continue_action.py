@@ -1,5 +1,3 @@
-# Rllib docs: https://docs.ray.io/en/latest/rllib.html
-
 try:
     from malmo import MalmoPython
 except:
@@ -24,27 +22,27 @@ class Vegetarian(gym.Env):
 
     def __init__(self, env_config):  
         # Static Parameters
-        self.length = 20
-        self.width = 50
+        self.length = 50
+        self.width = 20
+        self.start_x = 0
+        self.start_z = 0
         self.size = 50
         self.reward_density = .1
         self.penalty_density = 0.02
         self.obs_size = 5
-        self.max_episode_steps = 50
+        self.max_episode_steps = 100
         self.log_frequency = 10
-        self.target_step = 50000
+        self.target_step = 200000
         self.action_dict = {
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
-            # 3: 'attack 1'  # Destroy block
         }
 
         # Rllib Parameters
-        self.action_space = Box(np.array([-1, -1]),np.array([+1, +1]),dtype=np.float32)
-        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size + 1, ), dtype=np.float32)
+        self.action_space = Discrete(len(self.action_dict))
+        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size, ), dtype=np.float32)
 
-        # print(Box);
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
         try:
@@ -103,28 +101,12 @@ class Vegetarian(gym.Env):
             done: <bool> indicates terminal state
             info: <dict> dictionary of extra information
         """
-
-        # Get Action
-        # print("ACTION:")
-        # print(action)
-
-        # if(self.first):
-        #     self.agent_host.sendCommand("turn 1")
-        #     self.first = False
-        # self.agent_host.sendCommand("move 1")
-
-        action_list = ['move ', 'turn ']
         
-        command = action_list[0] + str(action[0])
-        self.agent_host.sendCommand(command)
-        time.sleep(.2)
-        command = action_list[1] + str(action[1])
-        self.agent_host.sendCommand(command)
-        time.sleep(.2)
-        
-
-        self.episode_step += 1
-            # print(command)
+        command = self.action_dict[action]
+        if command != 'attack 1' or self.allow_break_action:
+            self.agent_host.sendCommand(command)
+            time.sleep(.2)
+            self.episode_step += 1
         # Get Observation
         world_state = self.agent_host.getWorldState()
         
@@ -147,61 +129,85 @@ class Vegetarian(gym.Env):
         return self.obs, reward, done, dict()
 
     def get_mission_xml(self):
-        setWallGlass_length = ""
-        for z in range(-1,52):
-            for y in range(2,5):
-                setWallGlass_length += "<DrawBlock x='21' y='{}' z='{}' type='stained_glass' colour='PINK'/>".format(y,z)
-                setWallGlass_length += "<DrawBlock x='-1' y='{}' z='{}' type='stained_glass' colour='PINK'/>".format(y,z)
-        setWallGlass_width = ""
-        for x in range(-1,22):
-            for y in range(2,5):
-                setWallGlass_length += "<DrawBlock x='{}' y='{}' z='51' type='stained_glass' colour='PINK' />".format(x,y)
-                setWallGlass_length += "<DrawBlock x='{}' y='{}' z='-1' type='stained_glass' colour='PINK' />".format(x,y)
-
-        carrot_map = [[10,1]]
-        carrot_xml = "<DrawItem x='10' y ='2' z ='1' type ='carrot' />"
-        carrot_location = [10,1]
-        for i in range(0, self.width):
-            rand = random.randint(0,2)
-            if rand == 0:
-                carrot_location[0] = carrot_location[0] - 1
-                carrot_location[1] = carrot_location[1] + 1
-            elif rand == 1:
-                carrot_location[0] = carrot_location[0]
-                carrot_location[1] = carrot_location[1] + 1
-            else:
-                carrot_location[0] = carrot_location[0] + 1
-                carrot_location[1] = carrot_location[1] + 1
-            
-            if carrot_location[0] > 20:
-                carrot_location[0] = 20
-
-            temp = [carrot_location[0], carrot_location[1]]
-            carrot_map.append(temp)    
-            carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(carrot_location[0], carrot_location[1])
-        
-        mutton_xml = ""
-        muttons_map = []
-        for i in range(0, self.length):
-            for j in range(0, self.width):
-                rand = random.uniform(0,1)
-                if (rand < 0.15):
-                    temp = [i, j]
-                    if temp not in carrot_map:
-                        muttons_map.append(temp)
-                        temp_rand = random.randint(0,1)
-                        if temp_rand == 0:
-                            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='mutton' />".format(temp[0],temp[1])
-                        else:
-                            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='cooked_mutton' />".format(temp[0],temp[1])
-
+        wall_block = ""
+        carrot_xml = ""
         grass_xml = ""
-        for i in carrot_map:
-            grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(i[0],i[1])
-
+        mutton_xml = ""
         bedrock_xml = ""
-        for i in muttons_map:
-            bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(i[0],i[1])
+
+        for num in range(self.start_z - 1, self.length + self.start_z + 1):
+            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.start_z - 1, num)
+            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.width + 1, num)
+
+        for num in range(self.start_x - 1, self.width + self.start_x + 1):
+            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.start_z - 1)
+            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.length + 1)
+
+        total_carrot = 100
+        carrot_list = [np.random.randint(65, 75)]   #start at z = 3,
+        left_bound = self.start_x + 2
+        right_bound = self.width - 2
+        forward_bound = self.length - 4
+
+        # carrot_location = [10,1]
+        # for i in range(0, total_carrot):
+        #     rand = random.randint(0,2)
+        #     if rand == 0:
+        #         carrot_location[0] = carrot_location[0] - 1
+        #         carrot_location[1] = carrot_location[1] + 1
+        #     elif rand == 1:
+        #         carrot_location[0] = carrot_location[0]
+        #         carrot_location[1] = carrot_location[1] + 1
+        #     else:
+        #         carrot_location[0] = carrot_location[0] + 1
+        #         carrot_location[1] = carrot_location[1] + 1
+            
+        #     if carrot_location[0] > 20:
+        #         carrot_location[0] = 20
+        #     carrot_list.append(carrot_location[0] + carrot_location[1] * self.width)
+
+        while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
+            next_step = np.random.choice([1, -1, self.width], replace=False)
+            if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
+                 ((carrot_list[-1] % self.width) + next_step < right_bound or next_step == self.width)):
+                
+                times = 2   #left or right for two step
+                if(next_step == self.width):
+                    times = np.random.randint(3, 4) #forward 3 to 4 step
+
+                for n in range(times):
+                    carrot_list.append(carrot_list[-1] + next_step)
+
+        #add the carrot and grass on the map
+
+        for coor in carrot_list:
+            # print(coor % self.width, coor // self.width)
+            carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
+            grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
+
+        #mutton 
+        muttons_map = []
+        mutton_total = total_carrot * 0.8
+
+        while(len(muttons_map) < mutton_total):
+            valid_coor = True
+            coor = np.random.randint((self.start_x + 1) * self.width, self.width * self.length)
+            for z in range(-1, 2):
+                for x in range(-1, 2):
+                    if (coor + z * self.width + x) in carrot_list:
+                        valid_coor = False
+                        break
+            if(valid_coor == True):
+                muttons_map.append(coor)
+
+        #add the mutton on the map
+        for coor in muttons_map:
+            mutton_type = 'mutton'
+            if(np.random.randint(0,2) == 0):
+                mutton_type = 'cooked_mutton'
+            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='{}' />".format(coor % self.width, coor // self.width, mutton_type)
+           
+            # bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -219,15 +225,14 @@ class Vegetarian(gym.Env):
                         <ServerHandlers>
                             <FlatWorldGenerator generatorString="3;7,2;1;"/>
                             <DrawingDecorator>''' + \
-                                "<DrawCuboid x1='0' x2='{}' y1='2' y2='2' z1='0' z2='{}' type='air'/>".format(self.length, self.width) + \
-                                "<DrawCuboid x1='0' x2='{}' y1='1' y2='1' z1='0' z2='{}' type='stone'/>".format(self.length, self.width) + \
-                                setWallGlass_length + \
-                                setWallGlass_width  + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='2' y2='2' z1='{}' z2='{}' type='air'/>".format(self.start_x, self.width, self.start_z, self.length) + \
+                                "<DrawCuboid x1='{}' x2='{}' y1='1' y2='1' z1='{}' z2='{}' type='stone'/>".format(self.start_x, self.width, self.start_z, self.length) + \
+                                wall_block + \
                                 carrot_xml + \
-                                mutton_xml + \
                                 grass_xml + \
+                                mutton_xml + \
                                 bedrock_xml + \
-                                '''<DrawBlock x='0'  y='2' z='0' type='air' />
+                                '''
                                 <DrawBlock x='10'  y='1' z='0' type='redstone_block' />
                             </DrawingDecorator>
                             <ServerQuitWhenAnyAgentFinishes/>
@@ -236,7 +241,7 @@ class Vegetarian(gym.Env):
                     <AgentSection mode="Survival">
                         <Name>CarrotCollector</Name>
                         <AgentStart>
-                            <Placement x="10.5" y="2" z="0.5" pitch="30" yaw="0"/>
+                            <Placement x="10.5" y="2" z="0.5" pitch="45" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_pickaxe"/>
                             </Inventory>
@@ -247,15 +252,22 @@ class Vegetarian(gym.Env):
                                 <Item type = "cooked_mutton" reward ="-1"/>
                                 <Item type = "mutton" reward ="-2"/>
                             </RewardForCollectingItem>
-                            <ContinuousMovementCommands/>
+                            <DiscreteMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
                             
                             <ObservationFromNearbyEntities>
-                                <Range name="floorAll" xrange='3' yrange='2' zrange='3' />                                
-                            </ObservationFromNearbyEntities>
+                                <Range name="floorAll" xrange='3' yrange='2' zrange='3' />
                            
-                            <AgentQuitFromReachingCommandQuota total="'''+str(2*self.max_episode_steps)+'''" />
+                            </ObservationFromNearbyEntities>
+                            <ObservationFromGrid>
+                                <Grid name="floorAll2">
+                                    <min x="-'''+str(int(self.obs_size/2))+'''" y="-1" z="-'''+str(int(self.obs_size/2))+'''"/>
+                                    <max x="'''+str(int(self.obs_size/2))+'''" y="0" z="'''+str(int(self.obs_size/2))+'''"/>
+                                </Grid>
+                            </ObservationFromGrid>
+                           
+                            <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
@@ -311,7 +323,7 @@ class Vegetarian(gym.Env):
         reward_action = False
 
 
-        obs = np.zeros(self.obs_size * self.obs_size + 1)
+        obs = np.zeros(self.obs_size * self.obs_size)
         
         while world_state.is_mission_running:
             time.sleep(0.10)
@@ -333,7 +345,9 @@ class Vegetarian(gym.Env):
                     # Get observation                    
                     try:
                         grid = observations['floorAll']
-                        yaw = observations['Yaw'] / 360
+                        grid2 = observations['floorAll2']
+                        print(grid2)
+                        yaw = observations['Yaw']
                     except:
                         print("Retry floorALL error")
                         time.sleep(0.20)
@@ -353,22 +367,21 @@ class Vegetarian(gym.Env):
                             obs[index] = -1
 
 
-                    # for i, x in enumerate(grid):
-                    #     obs[i] = x == 'iron_ore' or x == 'carrot'
-
-
                     # Rotate observation with orientation of agent
-                    # obs = obs.reshape((2, self.obs_size, self.obs_size))
-                    # yaw = observations['Yaw']
-                    # if yaw >= 225 and yaw < 315:
-                    #     obs = np.rot90(obs, k=1, axes=(1, 2))
-                    # elif yaw >= 315 or yaw < 45:
-                    #     obs = np.rot90(obs, k=2, axes=(1, 2))
-                    # elif yaw >= 45 and yaw < 135:
-                    #     obs = np.rot90(obs, k=3, axes=(1, 2))
+                    obs = obs.reshape((1, self.obs_size, self.obs_size))
 
-
-                    obs[-1] = yaw / 360
+                    # print(obs)
+                    
+                    if yaw >= 225 and yaw < 315:
+                        obs = np.rot90(obs, k=1, axes=(1, 2))
+                    elif yaw >= 315 or yaw < 45:
+                        obs = np.rot90(obs, k=2, axes=(1, 2))
+                    elif yaw >= 45 and yaw < 135:
+                        obs = np.rot90(obs, k=3, axes=(1, 2))
+                    # print(obs)
+                    
+                    obs = obs.flatten()
+                    # obs[-1] = observations['Yaw'] / 360
 
                     # print(obs)
 
