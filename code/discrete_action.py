@@ -1,5 +1,3 @@
-# Rllib docs: https://docs.ray.io/en/latest/rllib.html
-
 try:
     from malmo import MalmoPython
 except:
@@ -39,12 +37,14 @@ class Vegetarian(gym.Env):
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
+            #3: 'jump 1',  # Jump 
         }
 
         # Rllib Parameters
-        self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size, ), dtype=np.float32)
+        self.action_space = Box(np.array([-1, -1]),np.array([+1, +1]),dtype=np.float32)
+        self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size * 3 + 1, ), dtype=np.float32)
 
+        # print(Box);
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
         try:
@@ -103,12 +103,28 @@ class Vegetarian(gym.Env):
             done: <bool> indicates terminal state
             info: <dict> dictionary of extra information
         """
+
+        # Get Action
+        # print("ACTION:")
+        # print(action)
+
+        # if(self.first):
+        #     self.agent_host.sendCommand("turn 1")
+        #     self.first = False
+        # self.agent_host.sendCommand("move 1")
+
+        action_list = ['move ', 'turn ']
         
-        command = self.action_dict[action]
-        if command != 'attack 1' or self.allow_break_action:
-            self.agent_host.sendCommand(command)
-            time.sleep(.2)
-            self.episode_step += 1
+        command = action_list[0] + str(action[0])
+        self.agent_host.sendCommand(command)
+
+        command = action_list[1] + str(action[1])
+        self.agent_host.sendCommand(command)
+        time.sleep(.2)
+        
+
+        self.episode_step += 1
+            # print(command)
         # Get Observation
         world_state = self.agent_host.getWorldState()
         
@@ -125,7 +141,7 @@ class Vegetarian(gym.Env):
             reward += r.getValue()
         self.episode_return += reward
 
-        print("REWARD: " + str(self.episode_return))
+        # print("REWARD: " + str(self.episode_return))
 
 
         return self.obs, reward, done, dict()
@@ -138,12 +154,15 @@ class Vegetarian(gym.Env):
         bedrock_xml = ""
 
         for num in range(self.start_z - 1, self.length + self.start_z + 1):
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.start_z - 1, num)
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.width + 1, num)
+            for y in range(2,5):
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(self.start_z - 1,y, num)
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(self.width + 1,y, num)
+            
 
         for num in range(self.start_x - 1, self.width + self.start_x + 1):
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.start_z - 1)
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.length + 1)
+            for y in range(2,5):
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(num,y, self.start_z - 1)
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(num,y, self.length + 1)
 
         total_carrot = 100
         carrot_list = [np.random.randint(65, 75)]   #start at z = 3,
@@ -169,7 +188,7 @@ class Vegetarian(gym.Env):
         #     carrot_list.append(carrot_location[0] + carrot_location[1] * self.width)
 
         while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
-            next_step = np.random.choice([1, -1, self.width], replace=False)
+            next_step = np.random.choice([1, -1, 20], replace=False)
             if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
                  ((carrot_list[-1] % self.width) + next_step < right_bound or next_step == self.width)):
                 
@@ -183,7 +202,7 @@ class Vegetarian(gym.Env):
         #add the carrot and grass on the map
 
         for coor in carrot_list:
-            print(coor % self.width, coor // self.width)
+            # //print(coor % self.width, coor // self.width)
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
             grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
 
@@ -208,8 +227,7 @@ class Vegetarian(gym.Env):
             if(np.random.randint(0,2) == 0):
                 mutton_type = 'cooked_mutton'
             mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='{}' />".format(coor % self.width, coor // self.width, mutton_type)
-           
-            # bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
+            bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
 
         return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -234,7 +252,7 @@ class Vegetarian(gym.Env):
                                 grass_xml + \
                                 mutton_xml + \
                                 bedrock_xml + \
-                                '''
+                                '''<DrawBlock x='0'  y='2' z='0' type='air' />
                                 <DrawBlock x='10'  y='1' z='0' type='redstone_block' />
                             </DrawingDecorator>
                             <ServerQuitWhenAnyAgentFinishes/>
@@ -243,7 +261,7 @@ class Vegetarian(gym.Env):
                     <AgentSection mode="Survival">
                         <Name>CarrotCollector</Name>
                         <AgentStart>
-                            <Placement x="10.5" y="2" z="0.5" pitch="45" yaw="0"/>
+                            <Placement x="10.5" y="2" z="0.5" pitch="30" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_pickaxe"/>
                             </Inventory>
@@ -254,15 +272,15 @@ class Vegetarian(gym.Env):
                                 <Item type = "cooked_mutton" reward ="-1"/>
                                 <Item type = "mutton" reward ="-2"/>
                             </RewardForCollectingItem>
-                            <DiscreteMovementCommands/>
+                            <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
                             
                             <ObservationFromNearbyEntities>
-                                <Range name="floorAll" xrange='3' yrange='2' zrange='3' />                                
+                                <Range name="itemAll" xrange='3' yrange='2' zrange='3' />                                
                             </ObservationFromNearbyEntities>
                            
-                            <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
+                            <AgentQuitFromReachingCommandQuota total="'''+str(2*self.max_episode_steps)+'''" />
                         </AgentHandlers>
                     </AgentSection>
                 </Mission>'''
@@ -318,7 +336,7 @@ class Vegetarian(gym.Env):
         reward_action = False
 
 
-        obs = np.zeros(self.obs_size * self.obs_size)
+        obs = np.zeros(self.obs_size * self.obs_size * 3 + 1)
         
         while world_state.is_mission_running:
             time.sleep(0.10)
@@ -339,7 +357,7 @@ class Vegetarian(gym.Env):
                     # print(observations['XPos'], observations['YPos'],observations['ZPos'])
                     # Get observation                    
                     try:
-                        grid = observations['floorAll']
+                        grid = observations['itemAll']
                         yaw = observations['Yaw']
                     except:
                         print("Retry floorALL error")
@@ -348,33 +366,39 @@ class Vegetarian(gym.Env):
 
                     agent = grid[0];
                     # print(grid)
+                    reward_list={}
+
                     for item in grid:
                         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
                         # print(item['x'], item['z'], index)
 
                         if(item['name'] == 'carrot'):
-                            obs[index] = 1
+                            obs[index * 1] = 1
                         if(item['name'] == 'cooked_mutton'):
-                            obs[index] = -0.5
+                            obs[index * 2] = 1
                         if(item['name'] == 'mutton'):
-                            obs[index] = -1
+                            obs[index * 3] = 1
+
+                        #yaw for each item
+                    obs[-1] =  yaw / 360
+
+
+                    # for i, x in enumerate(grid):
+                    #     obs[i] = x == 'iron_ore' or x == 'carrot'
 
 
                     # Rotate observation with orientation of agent
-                    obs = obs.reshape((1, self.obs_size, self.obs_size))
+                    # obs = obs.reshape((2, self.obs_size, self.obs_size))
+                    # yaw = observations['Yaw']
+                    # if yaw >= 225 and yaw < 315:
+                    #     obs = np.rot90(obs, k=1, axes=(1, 2))
+                    # elif yaw >= 315 or yaw < 45:
+                    #     obs = np.rot90(obs, k=2, axes=(1, 2))
+                    # elif yaw >= 45 and yaw < 135:
+                    #     obs = np.rot90(obs, k=3, axes=(1, 2))
 
-                    # print(obs)
-                    
-                    if yaw >= 225 and yaw < 315:
-                        obs = np.rot90(obs, k=1, axes=(1, 2))
-                    elif yaw >= 315 or yaw < 45:
-                        obs = np.rot90(obs, k=2, axes=(1, 2))
-                    elif yaw >= 45 and yaw < 135:
-                        obs = np.rot90(obs, k=3, axes=(1, 2))
-                    # print(obs)
-                    
-                    obs = obs.flatten()
-                    # obs[-1] = observations['Yaw'] / 360
+
+                    # obs[-1] = yaw / 360
 
                     # print(obs)
 
