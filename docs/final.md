@@ -24,9 +24,9 @@ max mutton amount: 100
 <br />  
 
 #### Reward System
-Carrot: +5  
-Cooked_mutton: -1  
-Mutton: -2  
+<div style="text-align:left;">
+<img src="./image/rewards.png" width="10%" />
+</div> 
 <br />
 
 #### Actions of agent
@@ -129,7 +129,7 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
 </div>    
     
 <br />
-Just like the map gaven above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively jump over blocks a few times, but most of times, Jackson just passby muttons and will not follow the carrot path correctly. Jackson did not study efficiently and achieved high rewards with jump action. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to analyze Jackson's data  without jump action.
+Just like the map given above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively jump over blocks a few times, but most of times, Jackson just passby muttons and will not follow the carrot path correctly. Jackson did not study efficiently and achieved high rewards with jump action. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to analyze Jackson's data  without jump action.
 <br />
 ### Evaluation
 
