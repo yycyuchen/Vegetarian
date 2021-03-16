@@ -1,5 +1,3 @@
-# Rllib docs: https://docs.ray.io/en/latest/rllib.html
-
 try:
     from malmo import MalmoPython
 except:
@@ -8,7 +6,9 @@ except:
 import sys
 import time
 import json
+import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 import numpy as np
 from numpy.random import randint
 import random
@@ -29,8 +29,6 @@ class Vegetarian(gym.Env):
         self.start_x = 0
         self.start_z = 0
         self.size = 50
-        self.reward_density = .1
-        self.penalty_density = 0.02
         self.obs_size = 5
         self.max_episode_steps = 100
         self.log_frequency = 10
@@ -39,6 +37,7 @@ class Vegetarian(gym.Env):
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
+            #3: 'jump 1',  # Jump 
         }
 
         # Rllib Parameters
@@ -61,14 +60,22 @@ class Vegetarian(gym.Env):
         self.episode_return = 0
         self.returns = []
         self.steps = []
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
+        self.return_carrot = []
+        self.return_mutton = []
+        self.return_cooked_mutton = []
+
+        self.total_items = {'carrot': 0, 'mutton': 0, 'cooked_mutton': 0}
 
     def reset(self):
         """
         Resets the environment for the next episode.
-
         Returns
             observation: <np.array> flattened initial obseravtion
         """
+        
         # Reset Malmo
         world_state = self.init_malmo()
 
@@ -79,8 +86,20 @@ class Vegetarian(gym.Env):
         self.episode_return = 0
         self.episode_step = 0
 
+        #reset number of items
+        self.return_carrot.append(self.num_carrot)
+        self.return_mutton.append(self.num_mutton)
+        self.return_cooked_mutton.append(self.num_cooked_mutton)
+        self.total_items['carrot'] = self.total_items['carrot'] + self.num_carrot
+        self.total_items['mutton'] = self.total_items['mutton'] + self.num_mutton
+        self.total_items['cooked_mutton'] = self.total_items['cooked_mutton'] + self.num_cooked_mutton
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
+
         # Log
         # print("RESET... "+ str(self.returns))
+        
         if len(self.returns) > self.log_frequency + 1 and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
@@ -101,29 +120,18 @@ class Vegetarian(gym.Env):
             done: <bool> indicates terminal state
             info: <dict> dictionary of extra information
         """
-        # self.obs, self.allow_jump_action = self.get_observation(world_state)
-        world_state = self.agent_host.getWorldState() 
-        self.obs, self.allow_jump_action = self.get_observation(world_state) 
-
-        command = self.action_dict[action]
-        if command == 'jump 1' or self.allow_jump_action:
-            self.agent_host.sendCommand("jump 1")
-            self.agent_host.sendCommand("move 1")
-            self.agent_host.sendCommand("move 1")
-            self.agent_host.sendCommand("jump 0")
         
-        if command != 'jump 1':
+        command = self.action_dict[action]
+        if command != 'attack 1' or self.allow_break_action:
             self.agent_host.sendCommand(command)
-
-        time.sleep(0.2)
-        self.episode_step += 1
-
+            time.sleep(.2)
+            self.episode_step += 1
         # Get Observation
         world_state = self.agent_host.getWorldState()
         
         for error in world_state.errors:
             print("Error:", error.text)
-        self.obs, self.allow_jump_action = self.get_observation(world_state) 
+        self.obs, self.allow_break_action = self.get_observation(world_state) 
 
         # Get Done
         done = not world_state.is_mission_running 
@@ -147,9 +155,6 @@ class Vegetarian(gym.Env):
         return self.obs, reward, done, dict()
         #return self.obs, reward, num_carrot,num_cooked_mutton,num_mutton, done, dict()
 
-
-        return self.obs, reward, done, dict()
-
     def get_mission_xml(self):
         wall_block = ""
         carrot_xml = ""
@@ -158,12 +163,15 @@ class Vegetarian(gym.Env):
         bedrock_xml = ""
 
         for num in range(self.start_z - 1, self.length + self.start_z + 1):
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.start_z - 1, num)
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(self.width + 1, num)
+            for y in range(2,5):
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(self.start_z - 1,y, num)
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(self.width + 1,y, num)
+            
 
         for num in range(self.start_x - 1, self.width + self.start_x + 1):
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.start_z - 1)
-            wall_block += "<DrawBlock x='{}' y='2' z='{}' type='stained_glass' colour='PINK' />".format(num, self.length + 1)
+            for y in range(2,5):
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(num,y, self.start_z - 1)
+                wall_block += "<DrawBlock x='{}' y='{}' z='{}' type='stained_glass' colour='PINK' />".format(num,y, self.length + 1)
 
         total_carrot = 100
         carrot_list = [np.random.randint(65, 75)]   #start at z = 3,
@@ -189,7 +197,7 @@ class Vegetarian(gym.Env):
         #     carrot_list.append(carrot_location[0] + carrot_location[1] * self.width)
 
         while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
-            next_step = np.random.choice([1, -1, self.width], replace=False)
+            next_step = np.random.choice([1, -1, 20], replace=False)
             if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
                  ((carrot_list[-1] % self.width) + next_step < right_bound or next_step == self.width)):
                 
@@ -203,10 +211,11 @@ class Vegetarian(gym.Env):
         #add the carrot and grass on the map
 
         for coor in carrot_list:
-            # print(coor % self.width, coor // self.width)
+            #print(coor % self.width, coor // self.width)
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
             grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
-
+        
+        print(len(carrot_list))
         #mutton 
         muttons_map = []
         mutton_total = total_carrot * 0.8
@@ -228,10 +237,9 @@ class Vegetarian(gym.Env):
             if(np.random.randint(0,2) == 0):
                 mutton_type = 'cooked_mutton'
             mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='{}' />".format(coor % self.width, coor // self.width, mutton_type)
-           
-            # bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
+            bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
 
-return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+        return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
                         <Summary>Carrot Collector</Summary>
@@ -282,12 +290,6 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                             <ObservationFromNearbyEntities>
                                 <Range name="itemAll" xrange='3' yrange='2' zrange='3' />                                
                             </ObservationFromNearbyEntities>
-                            <ObservationFromGrid>
-                                <Grid name="floorAll">
-                                    <min x="-'''+str(1)+'''" y="-1" z="-'''+str(1)+'''"/>
-                                    <max x="'''+str(1)+'''" y="0" z="'''+str(1)+'''"/>
-                                </Grid>
-                            </ObservationFromGrid>
                            
                             <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps)+'''" />
                         </AgentHandlers>
@@ -341,7 +343,6 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         # allow_break_action = False
         edge_wall_action = False
         reward_action = False
-        allow_jump_action = False
 
 
         obs = np.zeros(self.obs_size * self.obs_size)
@@ -371,7 +372,7 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                         for item in items:
                             slot_name = u'Hotbar_' + str(i) + '_item'
                             slot_contents = observations.get(slot_name, "")
-                            # print(slot_contents)
+                            
                             if slot_contents == item:
                                 slot_number = u'Hotbar_' + str(i) + '_size'
                                 number = observations.get(slot_number, "")
@@ -389,19 +390,16 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                     # print(observations['XPos'], observations['YPos'],observations['ZPos'])
                     # Get observation                    
                     try:
-                        items = observations['itemAll']
+                        grid = observations['itemAll']
                         yaw = observations['Yaw']
-                        grid = observations['floorAll']
-                        # print(grid)
-                        # print(observations['LineOfSight']['type'])
                     except:
-                        print("Retry itemALL error")
+                        print("Retry floorALL error")
                         time.sleep(0.20)
                         continue
 
-                    agent = items[0];
-                    # print(items)
-                    for item in items:
+                    agent = grid[0];
+                    # print(grid)
+                    for item in grid:
                         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
                         # print(item['x'], item['z'], index)
 
@@ -425,26 +423,23 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                     elif yaw >= 45 and yaw < 135:
                         obs = np.rot90(obs, k=3, axes=(1, 2))
                     # print(obs)
+                    
                     obs = obs.flatten()
-                    self.direction = yaw
-                    # print(obs)
-                    for floor in grid:
-                        if floor == 'gold_block' :
-                            allow_jump_action = True
-                            # print("JUMP")
-                            break
+                    # obs[-1] = observations['Yaw'] / 360
 
-                    # edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
+                    # print(obs)
+
+                    edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
+
             break
 
-        return obs, allow_jump_action
+        return obs, edge_wall_action
         # return obs, allow_break_action
 
 
     def log_returns(self):
         """
         Log the current returns as a graph and text file
-
         Args:
             steps (list): list of global steps after each episode
             returns (list): list of total return of each episode
@@ -452,15 +447,65 @@ return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         box = np.ones(self.log_frequency) / self.log_frequency
         returns_smooth = np.convolve(self.returns[1:], box, mode='same')
         plt.clf()
+        
+        # bar the collect number of food
+        plt.bar(self.steps[1:], self.return_carrot[1:], color ='orange') 
+        plt.bar(self.steps[1:], self.return_mutton[1:], color ='blue') 
+        plt.bar(self.steps[1:], self.return_cooked_mutton[1:], color ='green') 
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("items")
+
+        plt.savefig("FoodNumberBar.png")
+        
+        box = np.ones(self.log_frequency) / self.log_frequency
+        returns_smooth = np.convolve(self.returns[1:], box, mode='same')
+        plt.clf()
+        
+        # plot the rewards graphs
         plt.plot(self.steps[1:], returns_smooth)
         plt.title('Vegetarian')
-        plt.ylabel('Return')
+        plt.ylabel('Rewards')
         plt.xlabel('Steps')
-        plt.savefig('returns.png')
-        with open('returns.txt', 'w') as f:
+        plt.savefig('rewards.png')
+        with open('rewards.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
                 f.write("{}\t{}\n".format(step, value))
         
+        # plot the collect number of food graphs        
+        carrot_smooth = np.convolve(self.return_carrot[1:], box, mode='same')
+        mutton_smooth = np.convolve(self.return_mutton[1:], box, mode='same')
+        cooked_mutton_smooth = np.convolve(self.return_cooked_mutton[1:], box, mode='same')
+        plt.clf()
+
+        line1 = plt.plot(self.steps[1:], carrot_smooth, label = 'carrot', color = 'orange')
+        line2 = plt.plot(self.steps[1:], mutton_smooth, label = 'mutton', color = 'blue')
+        line3 = plt.plot(self.steps[1:], cooked_mutton_smooth, label = 'cooked_mutton', color = 'green')
+        
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("Steps")
+        plt.legend(loc = "upper right")
+
+        plt.savefig("FoodNumberPlot.png")
+        
+        with open('FoodNumberPlot.txt', 'w') as f:
+           for step, carrot, mutton, cooked_mutton in zip(self.steps[1:], self.return_carrot[1:], self.return_mutton[1:], self.return_cooked_mutton[1:]):
+               f.write("{}\t{}\t{}\t{}\n".format(step, carrot, mutton, cooked_mutton))
+
+        # plot total number of item
+        items = list(self.total_items.keys())
+        values = list(self.total_items.values())
+        fig = plt.figure(figsize = (10, 5)) 
+        plt.bar(items[0], values[0], color ='orange', width = 0.4) 
+        plt.bar(items[1], values[1], color ='blue', width = 0.4) 
+        plt.bar(items[2], values[2], color ='green', width = 0.4) 
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("items")
+
+        plt.savefig("totalItem.png")
+               
         if self.steps[1:][-1] > self.target_step:
             print("EXIT")
             print(self.steps[1:][-1])
