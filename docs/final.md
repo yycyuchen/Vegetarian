@@ -25,7 +25,7 @@ max mutton amount: 100
 
 #### Reward System
 <div style="text-align:left;">
-<img src="./image/rewards.png" width="10%" />
+<img src="./image/rewards.png" width="20%" />
 </div> 
 <br />
 
