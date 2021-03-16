@@ -143,7 +143,7 @@ To evaluate Jackson's performance, we simply need to observe the number of carro
 
 ***Quantitative:***  
 <div style="text-align:left;">
-<img src="./image/final_dis_FoodNumberPlot.png" />
+<img src="./image/final_table.png" />
 </div>
 <br />
 
