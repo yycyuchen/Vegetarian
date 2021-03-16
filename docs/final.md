@@ -16,9 +16,11 @@ Finally, we tried to set obstacles on the "carrot path" and added the action "Ju
 <br />   
 ### Approach
 #### Environment/ Minecraft Map
-length: 20  
-width: 50  
-stained glass wall: 3  
+length: 50  
+width: 20  
+stained glass wall: 3
+max carrot amount: 100
+max meat amount: 100
 <br />  
 
 #### Reward System
@@ -42,7 +44,7 @@ Mutton: -2
 We changed Jackson's observation space. Rather than Jackson simply observing the grass block that has been generated which does not move, we changed the way of observation . Jackson can directly observe carrots and muttons during the learning process. Compared with observing the grass block directly, the difficulty of observing the carrot directly is that the grass block will not change. However, the carrot will disappear after being picked up by Jackson. We solved the problem of converting the observation API into a grid location around the agent Jackson. The above image shows the conversion formula we used. Get_observation function uses the observation API to get items around the agent(5 * 5) and returns the values of x, y, z. Since it is the same plane, the y value is the same. We successfully converted each x, z coordinate into a corresponding index. In our formular, the upper case "X" and "Z" represent item location and lower case 'x' and 'z'represent agent location. Here is our code below. 
 
 ```
-        index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
+        array index = middle index of the observation array + (item X - agnet X) + (item Z - agnet z) * observation diameter
 ```
 
 For example, our agent Jackson is now at location of our map (12, 31), and item is at location of our map (13, 32), his observation 5 * 5 = 25. Firstly, we consider Jackson at location (0,0) in our observation map(show left above). We need to get half of the floor of array.size, that is, the integer obtained by dividing the square of our observation size by 2. We can get Index = 5 * 5 //2 + (13 - 12) + (32 - 31) * 5 = 18. Finally, it will be saved as an array.
@@ -57,24 +59,16 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
 <br />
 
 ```
-        while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
-            next_step = np.random.choice([1, -1, 20], replace=False)
-            if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
-                 ((carrot_list[-1] % self.width) + next_step < right_bound or next_step == self.width)):
-                
-                times = 2   #left or right for two step
-                if(next_step == self.width):
-                    times = np.random.randint(3, 4) #forward 3 to 4 step
+          # Carrot Distribution
+          while until reached the max corrot amount or reached the forward wall
+            randomly choose(left, right, forward)
+            if the random coordinate is valid
+              if left or right direction:
+                step = 2
+              else
+                step =  randomly choose(3 or 4)
 
-                for n in range(times):
-                    carrot_list.append(carrot_list[-1] + next_step)
-
-        #add the carrot and grass on the map
-
-        for coor in carrot_list:
-            print(coor % self.width, coor // self.width)
-            carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
-            grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
+              append the coordinate to the carrot list
 ```  
 <br />
   
@@ -88,27 +82,13 @@ Here is our code for setting the mutton.
 ```
         # Mutton Distribution
         
-        muttons_map = []
-        mutton_total = total_carrot * 0.8
+        while until reached the max meat amount
+          get a random coordinate
+          if the random coordinate is not next to any carrot
+            append the coordinate to the meat list
 
-        while(len(muttons_map) < mutton_total):
-            valid_coor = True
-            coor = np.random.randint((self.start_x + 1) * self.width, self.width * self.length)
-            for z in range(-1, 2):
-                for x in range(-1, 2):
-                    if (coor + z * self.width + x) in carrot_list:
-                        valid_coor = False
-                        break
-            if(valid_coor == True):
-                muttons_map.append(coor)
-
-        #add the mutton on the map
-        for coor in muttons_map:
-            mutton_type = 'mutton'
-            if(np.random.randint(0,2) == 0):
-                mutton_type = 'cooked_mutton'
-            mutton_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='{}' />".format(coor % self.width, coor // self.width, mutton_type)
-            bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
+        repeat for each coordinate in the meat list
+          randomly choose meat type(the cooked or uncooked meat type)
 ```
 <br />
   
