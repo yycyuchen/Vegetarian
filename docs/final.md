@@ -43,9 +43,8 @@ Discrete Action:
 <br />
 
 Continue Action:
-1. Action 0: Move forward for 1 block.
-2. Action 1: Turn 1 which is 90 degrees to the right
-3. Action 2: Turn -1 which is 90 degrees to the left
+1. Action Move: -1 to 1, between 90 degrees left turn and 90 degrees right turn.
+2. Action Turn: -1 to 1, between 1 block forward and 1 block backward.
 <br />
 
 #### Machine Learning Algorithms
