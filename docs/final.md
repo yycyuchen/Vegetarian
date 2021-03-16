@@ -125,7 +125,7 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
   
 ##### ***6.Action：Jump***
 <div style="text-align:left;">
-<img src="./image/final_jump2.png" />
+<img src="./image/final_jump2.png" width="100%" />
 </div>    
     
 <br />
