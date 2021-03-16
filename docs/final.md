@@ -19,8 +19,8 @@ Finally, we tried to set obstacles on the "carrot path" and added the action "Ju
 length: 50  
 width: 20  
 stained glass wall: 3
-max carrot amount: 100  
-max mutton amount: 100  
+max carrot amount: 100    
+max mutton amount: 100    
 <br />  
 
 #### Reward System
@@ -125,11 +125,11 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
   
 ##### ***6.Action：Jump***
 <div style="text-align:left;">
-<img src="./image/final_jump.png" height="50%" width="50%" />
+<img src="./image/final_jump_graph.png" />
 </div>    
     
 <br />
-Just like the map I gave above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively jump over blocks a few times, but most of times, Jackson just passby the blocks and muttons and will not follow the carrot path correctly. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to delete Jackson's jump action.
+Just like the map gaven above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively jump over blocks a few times, but most of times, Jackson just passby muttons and will not follow the carrot path correctly. Jackson did not study efficiently and achieved high rewards with jump action. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to analyze Jackson's data  without jump action.
 <br />
 ### Evaluation
 
