@@ -128,6 +128,7 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
 <img src="./image/final_jump.png" height="50%" width="50%" />
 </div>    
     
+<br />
 Just like the map I gave above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively skip mutton a few times, but most of times, Jackson just passby the blocks and muttons. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to delete Jackson's jump action.
 <br />
 ### Evaluation
@@ -141,10 +142,32 @@ To evaluate Jackson's performance, we simply need to observe the number of carro
 <br />
 
 ***Quantitative:***  
-3
-<align="left" img src="./image/final_con_FoodNumberPlot.png" height="50%" width="50%"/> 
-<align="right" img src="./image/final_con_rewards.png" height="50%" width="50%"/>  
-
+#### Discrete Movement
+##### Number of Foods Collected (image1)
+<div style="text-align:left;">
+<img src="./image/final_dis_FoodNumberPlot.png" height="50%" width="50%" />
+</div>
+##### Rewards (image2)
+<div style="text-align:left;">
+<img src="./image/final_dis_rewards.png" height="50%" width="50%" />
+</div>
+##### Total Foods(image3)
+<div style="text-align:left;">
+<img src="./image/final_dis_totalItem.png" height="50%" width="50%" />
+</div>
+#### Continuous Movement
+##### Total Foods (image4)
+<div style="text-align:left;">
+<img src="./image/final_dis_totalItem.png" height="50%" width="50%" />
+</div>
+##### Rewards (image5)
+<div style="text-align:left;">
+<img src="./image/final_dis_rewards.png" height="50%" width="50%" />
+</div>
+##### Number of Foods Collected (image6)
+<div style="text-align:left;">
+<img src="./image/final_dis_FoodNumberPlot.png" height="50%" width="50%" />
+</div>
 <br />
 
 
