@@ -8,7 +8,7 @@ title: Final Report
 ### Project Summary
 The purpose of our project is to let the vegetarian Jackson pick up more carrots instead of mutton. For Jackson having a good learning environment, we built a 20 * 50 rectangular map with three layers of pink stained glass wall for Jackson to explore. We randomly generated a carrot path and with mutton surrounded in the map. In order to get more rewards, Jackson needs to walk along the "carrot path" and pick up carrots as much as possible to avoid picking up mutton. Our project is similar to the current artificial intelligence navigation system and the "carrot path" is the correct route in our daily life. At the same time, we also verified that under the PPO algorithm, the use of discrete movement command methods can make the agent learn more efficiently and achieve more rewards.  
   
-Compared with the previous version, we have made a huge change. First, we changed the distribution of the "carrot path". We have changed the map more rationally and more in line with real life. For more details, please see "2. Set Carrot Path" in the Machine Learning Algorithms section. Secondly, Jackson's observations have also changed. Jackson does not learn by observing blocks or floors mechanically. Instead, he will be smarter to observe dynamically generated food. We solved the problem of converting the observation API into a grid location around the agent Jackson To facilitate Jackson to observe carrot and mutton directly. In order to report the quantitative results more clearly, we have also added other graphs such as the number of picks for carrots and muttons respectively.   
+Compared with the previous version, we have made a huge change. First, we changed the distribution of the "carrot path". We have changed the map more rationally and more in line with real life. For more details, please see "2. Set Carrot Path" in the Machine Learning Algorithms section. Since sometimes, the mutton is next to the carrot, we saw that Jackson would pick up the carrot with mutton even he did not touch it. We add Mutton Distribution Algorithm to avoid they close to each other. Secondly, Jackson's observations have also changed. Jackson does not learn by observing blocks or floors mechanically. Instead, he will be smarter to observe dynamically generated food. We solved the problem of converting the observation API into a grid location around the agent Jackson To facilitate Jackson to observe carrot and mutton directly. In order to report the quantitative results more clearly, we have also added other graphs such as the number of picks for carrots and muttons respectively.   
   
 At the beginning, we used the Q-learning algorithm to solve the problem. Compared with PPO, instability is the biggest problem of Q-learning algorithm. We found that using the Q-learning algorithm would make Jackson hesitate and waste a lot of time at the turning point of the "carrot path". Even if we changed the observation space algorithm, Jackson's rewards still did not improve significantly. After discussion with Kolby, we finally decided to use PPO (Proximal Policy Optimization) with RLlib and Ray to train the agent in a random environment.  
   
@@ -19,8 +19,8 @@ Finally, we tried to set obstacles on the "carrot path" and added the action "Ju
 length: 50  
 width: 20  
 stained glass wall: 3
-max carrot amount: 100
-max meat amount: 100
+max carrot amount: 100  
+max mutton amount: 100  
 <br />  
 
 #### Reward System
@@ -74,7 +74,7 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
 <br />
   
 ##### ***3. Mutton Distribution***  
-In order to give Jackson a penalty, we set up a mutton next to the "carrot path". If Jackson, a vegetarian, picks up mutton, he will deduct points. Because the map we set up is 20* 50. In order to ensure that mutton and carrot do not appear on the same grid, we check the surrounding grids before setting up the mutton. As you can see in the image below. We take mutton as the center and confirm that no carrots will be placed on the eight grids around it which indices are -21, -20, -19, -1, +1, +19, +20, +21. This prevents mutton and carrot from appearing on the same grid. In addition, we will also pay attention to the ratio of mutton to carrot. We make sure that mutton will not be too much and the agent will lose a lot of points. We will also ensure that there are too few muttons so that the agent has no chance to encounter mutton and cannot learn. Therefore, when we set the ratio of the number of muttons to the number of carrots to 3:4, the distribution of muttons is the best.
+In order to give Jackson a penalty, we set up a mutton next to the "carrot path". If Jackson, a vegetarian, picks up mutton, he will deduct points. Because the map we set up is 20* 50. In order to ensure that mutton and carrot do not appear on the same grid, we check the surrounding grids before setting up the mutton. As you can see in the image below. We take mutton as the center and confirm that no carrots will be placed on the eight grids around it which indices are -21, -20, -19, -1, +1, +19, +20, +21. This prevents mutton and carrot from appearing on the same grid. In addition, we will also pay attention to the ratio of mutton to carrot. We make sure that mutton will not be too much and the agent will lose a lot of points. We will also ensure that there are too few muttons so that the agent has no chance to encounter mutton and cannot learn. Therefore, when we set the ratio of the number of muttons to the number of carrots to be same, the distribution of muttons is the best.
   
 <div style="text-align:left;">
 <img src="./image/final_mul.png" height="30%" width="20%" />
