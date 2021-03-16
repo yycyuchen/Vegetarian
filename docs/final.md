@@ -42,7 +42,7 @@ Mutton: -2
 </div>  
 
 We changed Jackson's observation space. Rather than Jackson simply observing the grass block that has been generated which does not move, we changed the way of observation . Jackson can directly observe carrots and muttons during the learning process. Compared with observing the grass block directly, the difficulty of observing the carrot directly is that the grass block will not change. However, the carrot will disappear after being picked up by Jackson. We solved the problem of converting the observation API into a grid location around the agent Jackson. The above image shows the conversion formula we used. Get_observation function uses the observation API to get items around the agent(5 * 5) and returns the values of x, y, z. Since it is the same plane, the y value is the same. We successfully converted each x, z coordinate into a corresponding index. In our formular, the upper case "X" and "Z" represent item location and lower case 'x' and 'z'represent agent location. Here is our code below. 
-
+  
 ```
         array index = middle index of the observation array + (item X - agnet X) + (item Z - agnet z) * observation diameter
 ```
@@ -75,11 +75,11 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
   
 ##### ***3. Mutton Distribution***  
 In order to give Jackson a penalty, we set up a mutton next to the "carrot path". If Jackson, a vegetarian, picks up mutton, he will deduct points. Because the map we set up is 20* 50. In order to ensure that mutton and carrot do not appear on the same grid, we check the surrounding grids before setting up the mutton. As you can see in the image below. We take mutton as the center and confirm that no carrots will be placed on the eight grids around it which indices are -21, -20, -19, -1, +1, +19, +20, +21. This prevents mutton and carrot from appearing on the same grid. In addition, we will also pay attention to the ratio of mutton to carrot. We make sure that mutton will not be too much and the agent will lose a lot of points. We will also ensure that there are too few muttons so that the agent has no chance to encounter mutton and cannot learn. Therefore, when we set the ratio of the number of muttons to the number of carrots to 3:4, the distribution of muttons is the best.
-
+  
 <div style="text-align:left;">
 <img src="./image/final_mul.png" height="30%" width="20%" />
-</div>
-Here is our code for setting the mutton.
+</div>  
+Here is our code for setting the mutton.  
 ```    
         # Mutton Distribution   
         while until reached the max meat amount
@@ -103,10 +103,10 @@ Here is our code for setting the mutton.
 S: current state <br>
 A: current action <br>
 Q(S, A): old values <br>
-$$\alpha:$$ learning rate <br>
+$$\alpha:$$ learning rate <br>$$  
 R: rewards <br>
-$$\gamma:$$ discount factor <br>
-$$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>
+$$\gamma:$$ discount factor <br>$$  
+$$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>$$  
 
 <br/>
 We have tried using Q-learning, but it is not very stable from Jackson's results. We found that the Q-learning algorithm did not greatly improve Jackson's score. Through a lot of time learning, Jackson still has no obvious improvement after 100,000 steps. In observing Jackson's learning process, we found that it sometimes pauses when making decisions, which may also waste its learning time. After discussion with Kolby, we decided to use PPO (Proximal Policy Optimization) with RLlib and Ray to train the agent in a random environment.
@@ -140,7 +140,7 @@ To evaluate Jackson's performance, we simply need to observe the number of carro
 <br />
 
 ***Quantitative:***  
-change22  
+dd  
 <align="left" img src="./image/final_con_FoodNumberPlot.png" height="50%" width="50%"/> <align="right" img src="./image/final_con_rewards.png" height="50%" width="50%"/>  
 
 <br />
