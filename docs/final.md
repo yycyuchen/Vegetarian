@@ -142,31 +142,8 @@ To evaluate Jackson's performance, we simply need to observe the number of carro
 <br />
 
 ***Quantitative:***  
-#### Discrete Movement
-##### Number of Foods Collected (image1)
 <div style="text-align:left;">
-<img src="./image/final_dis_FoodNumberPlot.png" height="50%" width="50%" />
-</div>
-##### Rewards (image2)
-<div style="text-align:left;">
-<img src="./image/final_dis_rewards.png" height="50%" width="50%" />
-</div>
-##### Total Foods(image3)
-<div style="text-align:left;">
-<img src="./image/final_dis_totalItem.png" height="50%" width="50%" />
-</div>
-#### Continuous Movement
-##### Total Foods (image4)
-<div style="text-align:left;">
-<img src="./image/final_dis_totalItem.png" height="50%" width="50%" />
-</div>
-##### Rewards (image5)
-<div style="text-align:left;">
-<img src="./image/final_dis_rewards.png" height="50%" width="50%" />
-</div>
-##### Number of Foods Collected (image6)
-<div style="text-align:left;">
-<img src="./image/final_dis_FoodNumberPlot.png" height="50%" width="50%" />
+<img src="./image/final_dis_FoodNumberPlot.png" />
 </div>
 <br />
 
