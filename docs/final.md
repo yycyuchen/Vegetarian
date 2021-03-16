@@ -58,8 +58,7 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
 </div>
 <br />
 
-```
-          
+```   
         # Carrot Distribution
         while until reached the max corrot amount or reached the forward wall
           randomly choose(left, right, forward)
@@ -81,7 +80,7 @@ In order to give Jackson a penalty, we set up a mutton next to the "carrot path"
 <img src="./image/final_mul.png" height="30%" width="20%" />
 </div>
 Here is our code for setting the mutton.
-```  
+```    
         # Mutton Distribution   
         while until reached the max meat amount
           get a random coordinate
@@ -90,8 +89,8 @@ Here is our code for setting the mutton.
 
         repeat for each coordinate in the meat list
           randomly choose meat type(the cooked or uncooked meat type)
-          
-```
+            
+```  
 <br />
   
 ##### ***4. Q-learning***  
