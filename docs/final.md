@@ -151,12 +151,12 @@ Just like the map I gave above, we randomly set up gold blocks on the "carrot pa
 ### Evaluation
 
 ***Qualitative:***
-<img src="./image/final_spe.png"height="50%" width="20%"  />  
+<img src="./image/final_spe.png" height="50%" width="20%"/>  
 To evaluate Jackson's performance, we simply need to observe the number of carrots and muttons picked up. By observing the changes in rewards, we can easily find that Jackson’s rewards have improved significantly at about 6,500 steps. Comparing the images of the picked items on the left above, we can also find that the number of carrots picked up is almost the same as the number of muttons before about 6,500 steps, and the three lines are very close. After 6,500, the number of carrots which Jackson picked up increase rapidly. The orange curve representing carrots that Jackson picked up is different from the other two mutton curves and it starts to rise slowly. This proves that Jackson has made progress in the learning process and realizes that he needs to pick up more carrots to get more rewards.
 <br />
 
 ***Quantitative:***
-
+changed
 <br />
 
 
