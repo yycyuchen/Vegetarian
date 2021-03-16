@@ -36,6 +36,13 @@ max mutton amount: 100
 <br />
 
 #### Actions of agent
+Discrete Action:
+1. Action 0: Move forward for 1 block.
+2. Action 1: Turn 1 which is 90 degrees to the right
+3. Action 2: Turn -1 which is 90 degrees to the left
+<br />
+
+Continue Action:
 1. Action 0: Move forward for 1 block.
 2. Action 1: Turn 1 which is 90 degrees to the right
 3. Action 2: Turn -1 which is 90 degrees to the left
