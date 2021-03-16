@@ -59,16 +59,18 @@ The picture below is the "carrot path" we set randomly. We randomly generate car
 <br />
 
 ```
-          # Carrot Distribution
-          while until reached the max corrot amount or reached the forward wall
-            randomly choose(left, right, forward)
-            if the random coordinate is valid
-              if left or right direction:
-                step = 2
-              else
-                step =  randomly choose(3 or 4)
+        
+        # Carrot Distribution
+        while until reached the max corrot amount or reached the forward wall
+          randomly choose(left, right, forward)
+          if the random coordinate is valid
+            if left or right direction:
+              step = 2
+            else
+              step =  randomly choose(3 or 4)
 
-              append the coordinate to the carrot list
+            append the coordinate to the carrot list
+            
 ```  
 <br />
   
@@ -89,6 +91,7 @@ Here is our code for setting the mutton.
 
         repeat for each coordinate in the meat list
           randomly choose meat type(the cooked or uncooked meat type)
+          
 ```
 <br />
   
