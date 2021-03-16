@@ -18,7 +18,7 @@ Finally, we tried to set obstacles on the "carrot path" and added the action "Ju
 #### Environment/ Minecraft Map
 length: 50  
 width: 20  
-stained glass wall: 3
+stained glass wall: 3  
 max carrot amount: 100    
 max mutton amount: 100    
 <br />  
