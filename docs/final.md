@@ -36,13 +36,13 @@ max mutton amount: 100
 <br />
 
 #### Actions of agent
-Discrete Action:
+Discrete Movement:
 1. Action 0: Move forward for 1 block.
 2. Action 1: Turn 1 which is 90 degrees to the right
 3. Action 2: Turn -1 which is 90 degrees to the left
 <br />
 
-Continue Action:
+Continuous Movement:
 1. Action Move: -1 to 1, between 90 degrees left turn and 90 degrees right turn.
 2. Action Turn: -1 to 1, between 1 block forward and 1 block backward.
 <br />
@@ -135,7 +135,22 @@ PPO trains a random strategy in a strategy-based manner, which can be updated in
   
 Compared with Q-learning, PPO provides more stable results, but requires more training steps. We did a comparison between using continuous movement and discrete movement and found that in some cases, when the agent should stop moving for one second, it still moves. Therefore, we decided to switch to discrete movement. Discrete exercise can significantly increase our training speed, because we have to train more episodes at the same time.
   
-##### ***6.Action：Jump***
+
+### Evaluation
+
+***Qualitative:***
+Our baseline is to expect Jackson to basically walk along the "carrot path", so as to get as many carrots as possible. The following shows Jackson’s discrete movement under the PPO algorithm and meets our requirements.
+<img src="image/walk_demo.gif" width="50%">
+<br />
+We also expect that he can avoid mutton so that he can reduce the penalty and when Jackson deviates from the "carrot path", he will return to the path. The following shows Jackson’s discrete movement under the PPO algorithm and meets our requirements.
+<img src="image/walk_return.gif" width="50%">
+<br />
+We  tried Jackson’s discrete movement under the PPO algorithm to add jumping action as well, he can partially meet our requirements but will reduce picking up carrots and cannot jump over the mutton.
+<img src="image/jump_demo.gif" width="50%">
+<br />
+
+***Quantitative:***  
+##### ***1.With Action：Jump***
 <div style="text-align:left;">
 <img src="./image/final_jump5.png" width="100%" />
 </div>    
@@ -143,9 +158,8 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
 <br />
 Just like the map given above, we randomly set up gold blocks on the "carrot path" to hinder Jackson. Our initial idea was that Jackson could learn to skip blocks and muttons in order to get higher scores. We expect Jackson to jump over obstacles on the carrot path and keep on the path. If Jackson deviates from the carrot path, he can jump over muttons, which is a good way to avoid picking up mutton and losing points. In fact, after we let Jackson learn 100,000 steps, it still did not meet our expectations. Through observation, we found that in most cases, Jackson jumps randomly when walking. It does effectively jump over blocks a few times, but most of times, Jackson just passby muttons and will not follow the carrot path correctly. Jackson did not study efficiently and achieved high rewards with jump action. Taking into account the lack of rapid improvement in rewards and Jackson's limited learning ability, we decided to analyze Jackson's data  without jump action.
 <br />
-### Evaluation
 
-***Qualitative:***
+##### ***2.Start Progress(Turning point)***
 <div style="text-align:left;">
 <img src="./image/final_spe2.png" width="100%"/>  
 </div>   
@@ -153,14 +167,15 @@ Just like the map given above, we randomly set up gold blocks on the "carrot pat
 To evaluate Jackson's performance, we simply need to observe the number of carrots and muttons picked up. By observing the changes in rewards, we can easily find that Jackson’s rewards have improved significantly at about 6,500 steps. Comparing the images of the picked items on the left above, we can also find that the number of carrots picked up is almost the same as the number of muttons before about 6,500 steps, and the three lines are very close. After 6,500, the number of carrots which Jackson picked up increase rapidly. The orange curve representing carrots that Jackson picked up is different from the other two mutton curves and it starts to rise slowly. This proves that Jackson has made progress in the learning process and realizes that he needs to pick up more carrots to get more rewards.
 <br />
 
-***Quantitative:***  
+##### ***2.Comparison and Verification***
 <div style="text-align:left;">
 <img src="./image/final_table.png" width="100%"/>
 </div>
 <br />
 Comparing with status, we also tested Jackson's discrete movement rewards. Jackson still gets a +5 rewards for every carrot he picks up. When he meets Cooked_mutton and mutton, his penalties are -1 and -2 respectively. From Rewards (image2), it can be clearly seen that rewards have been increasing rapidly until 40,000 steps. It starts to rise slowly after then. In addition, in order to more intuitively reflect Jackson's progress, we also plotted the discrete movement to record the number of the carrots and muttons picked up by Jackson in each episode in image 1. At the same time, we also recorded the total number of carrots and the number of muttons in 100,000 steps.    
 
-In status, we use a small amount of data (50,000 steps) to guess that Jackson can learn more efficiently and get higher scores under discrete movement than continuous movement. In order to verify our conjecture, we collected a lot of data (100,000 steps at least). We recorded 100,000 steps in discrete movement and compared Jackson 200,000 steps in continuous movement. From image 3 and image 6, it can be clearly contrasted that even if the data collected by continuous movement is twice that of discrete movement, the carrot collected by Jackson is much smaller than that in discrete movement. By observing image 5, we can tell that rewards slowly increase at the same speed under continuous movement. Image 4 also reflects the same problem. The orange curve, representing the number of carrots collected, is very close to the other two representing mutton. Under the PPO algorithm, discrete movement allows Jackson to learn more efficiently and make rapid progress.
+In status, we use a small amount of data (50,000 steps) to guess that Jackson can learn more efficiently and get higher scores under discrete movement than continuous movement. In order to verify our conjecture, we collected a lot of data (100,000 steps at least). We recorded 100,000 steps in discrete movement and compared Jackson 200,000 steps in continuous movement. From image 3 and image 6, it can be clearly contrasted that even if the data collected by continuous movement is twice that of discrete movement, the carrot collected by Jackson is much smaller than that in discrete movement. By observing image 5, we can tell that rewards slowly increase at the same speed under continuous movement. Image 4 also reflects the same problem. The orange curve, representing the number of carrots collected, is very close to the other two representing mutton. Under the PPO algorithm, discrete movement allows Jackson to learn more efficiently and make rapid progress.  
+<br />
 ### Resources Used
 
 - [Malmo XML Schema Documentation](https://microsoft.github.io/malmo/0.14.0/Schemas/Mission.html)
