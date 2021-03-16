@@ -93,28 +93,37 @@ class Vegetarian(gym.Env):
     def step(self, action):
         """
         Take an action in the environment and return the results.
-
         Args
             action: <int> index of the action to take
-
         Returns
             observation: <np.array> flattened array of obseravtion
             reward: <int> reward from taking action
             done: <bool> indicates terminal state
             info: <dict> dictionary of extra information
         """
-        
+        # self.obs, self.allow_jump_action = self.get_observation(world_state)
+        world_state = self.agent_host.getWorldState() 
+        self.obs, self.allow_jump_action = self.get_observation(world_state) 
+
         command = self.action_dict[action]
-        if command != 'attack 1' or self.allow_break_action:
+        if command == 'jump 1' or self.allow_jump_action:
+            self.agent_host.sendCommand("jump 1")
+            self.agent_host.sendCommand("move 1")
+            self.agent_host.sendCommand("move 1")
+            self.agent_host.sendCommand("jump 0")
+        
+        if command != 'jump 1':
             self.agent_host.sendCommand(command)
-            time.sleep(.2)
-            self.episode_step += 1
+
+        time.sleep(0.2)
+        self.episode_step += 1
+
         # Get Observation
         world_state = self.agent_host.getWorldState()
         
         for error in world_state.errors:
             print("Error:", error.text)
-        self.obs, self.allow_break_action = self.get_observation(world_state) 
+        self.obs, self.allow_jump_action = self.get_observation(world_state) 
 
         # Get Done
         done = not world_state.is_mission_running 
@@ -125,7 +134,18 @@ class Vegetarian(gym.Env):
             reward += r.getValue()
         self.episode_return += reward
 
-        print("REWARD: " + str(self.episode_return))
+        # print("REWARD: " + str(self.episode_return))
+        
+        #Get number of food
+        #num_carrot = 0
+        #num_cooked_mutton = 0
+        #num_mutton = 0
+        #for f in world_state.rewards:
+        #    num_carrot += f.getValue()
+        #    num_cooked_mutton += f.getValue()
+        #    num_mutton += f.getValue()
+        return self.obs, reward, done, dict()
+        #return self.obs, reward, num_carrot,num_cooked_mutton,num_mutton, done, dict()
 
 
         return self.obs, reward, done, dict()
@@ -211,7 +231,7 @@ class Vegetarian(gym.Env):
            
             # bedrock_xml += "<DrawBlock x='{}' y='1' z='{}' type='bedrock' />".format(coor % self.width, coor // self.width)
 
-        return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <About>
                         <Summary>Carrot Collector</Summary>
@@ -257,15 +277,15 @@ class Vegetarian(gym.Env):
                             <DiscreteMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
+                            <ObservationFromHotBar/>
                             
                             <ObservationFromNearbyEntities>
-                                <Range name="floorAll" xrange='3' yrange='2' zrange='3' />
-                           
+                                <Range name="itemAll" xrange='3' yrange='2' zrange='3' />                                
                             </ObservationFromNearbyEntities>
                             <ObservationFromGrid>
-                                <Grid name="floorAll2">
-                                    <min x="-'''+str(int(self.obs_size/2))+'''" y="-1" z="-'''+str(int(self.obs_size/2))+'''"/>
-                                    <max x="'''+str(int(self.obs_size/2))+'''" y="0" z="'''+str(int(self.obs_size/2))+'''"/>
+                                <Grid name="floorAll">
+                                    <min x="-'''+str(1)+'''" y="-1" z="-'''+str(1)+'''"/>
+                                    <max x="'''+str(1)+'''" y="0" z="'''+str(1)+'''"/>
                                 </Grid>
                             </ObservationFromGrid>
                            
@@ -311,18 +331,17 @@ class Vegetarian(gym.Env):
         """
         Use the agent observation API to get a flattened 2 x 5 x 5 grid around the agent. 
         The agent is in the center square facing up.
-
         Args
             world_state: <object> current agent world state
-
         Returns
             observation: <np.array> the state observation
-            allow_break_action: <bool> whether the agent is facing a diamond
+            allow_break_action: <bool> whether the agent is facing a carrot
         """
         # obs = np.zeros((2 * self.obs_size * self.obs_size, ))
         # allow_break_action = False
         edge_wall_action = False
         reward_action = False
+        allow_jump_action = False
 
 
         obs = np.zeros(self.obs_size * self.obs_size)
@@ -343,21 +362,46 @@ class Vegetarian(gym.Env):
                     # First we get the json from the observation API
                     msg = world_state.observations[-1].text
                     observations = json.loads(msg)
+
+                    ################################
+                    #store number of item
+                    items = ["carrot", "cooked_mutton", "mutton"]
+                    
+                    for i in range(0,9):
+                        for item in items:
+                            slot_name = u'Hotbar_' + str(i) + '_item'
+                            slot_contents = observations.get(slot_name, "")
+                            # print(slot_contents)
+                            if slot_contents == item:
+                                slot_number = u'Hotbar_' + str(i) + '_size'
+                                number = observations.get(slot_number, "")
+                                if items[0] == item:
+                                    self.num_carrot = number
+                                    
+                                elif items[1] == item:
+                                    self.num_cooked_mutton = number
+                                    
+                                else:
+                                    self.num_mutton = number
+                                    
+
+                    #################################
                     # print(observations['XPos'], observations['YPos'],observations['ZPos'])
                     # Get observation                    
                     try:
-                        grid = observations['floorAll']
-                        grid2 = observations['floorAll2']
-                        print(grid2)
+                        items = observations['itemAll']
                         yaw = observations['Yaw']
+                        grid = observations['floorAll']
+                        # print(grid)
+                        # print(observations['LineOfSight']['type'])
                     except:
-                        print("Retry floorALL error")
+                        print("Retry itemALL error")
                         time.sleep(0.20)
                         continue
 
-                    agent = grid[0];
-                    # print(grid)
-                    for item in grid:
+                    agent = items[0];
+                    # print(items)
+                    for item in items:
                         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
                         # print(item['x'], item['z'], index)
 
@@ -381,17 +425,19 @@ class Vegetarian(gym.Env):
                     elif yaw >= 45 and yaw < 135:
                         obs = np.rot90(obs, k=3, axes=(1, 2))
                     # print(obs)
-                    
                     obs = obs.flatten()
-                    # obs[-1] = observations['Yaw'] / 360
-
+                    self.direction = yaw
                     # print(obs)
+                    for floor in grid:
+                        if floor == 'gold_block' :
+                            allow_jump_action = True
+                            # print("JUMP")
+                            break
 
-                    edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
-
+                    # edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
             break
 
-        return obs, edge_wall_action
+        return obs, allow_jump_action
         # return obs, allow_break_action
 
 
