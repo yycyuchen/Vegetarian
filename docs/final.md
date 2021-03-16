@@ -5,6 +5,12 @@ title: Final Report
 
 ### Video Summary
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/7l9erb0lb3M" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>  
+<br />
+
+[Video link](https://youtu.be/7l9erb0lb3M)
+<br>
+
 ### Project Summary
 The purpose of our project is to let the vegetarian Jackson pick up more carrots instead of mutton. For Jackson having a good learning environment, we built a 20 * 50 rectangular map with three layers of pink stained glass wall for Jackson to explore. We randomly generated a carrot path and with mutton surrounded in the map. In order to get more rewards, Jackson needs to walk along the "carrot path" and pick up carrots as much as possible to avoid picking up mutton. Our project is similar to the current artificial intelligence navigation system and the "carrot path" is the correct route in our daily life. At the same time, we also verified that under the PPO algorithm, the use of discrete movement command methods can make the agent learn more efficiently and achieve more rewards.  
   
