@@ -80,6 +80,7 @@ In order to give Jackson a penalty, we set up a mutton next to the "carrot path"
 <img src="./image/final_mul.png" height="30%" width="20%" />
 </div>  
 Here is our code for setting the mutton.  
+<br />  
 ```    
         # Mutton Distribution   
         while until reached the max meat amount
@@ -103,10 +104,10 @@ Here is our code for setting the mutton.
 S: current state <br>
 A: current action <br>
 Q(S, A): old values <br>
-$$\alpha:$$ learning rate <br>$$  
+$$\alpha:$$ learning rate <br>
 R: rewards <br>
-$$\gamma:$$ discount factor <br>$$  
-$$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>$$  
+$$\gamma:$$ discount factor <br> 
+$$\max_a Q(S,a):$$ slightly estimate of optimal future value <br>
 
 <br/>
 We have tried using Q-learning, but it is not very stable from Jackson's results. We found that the Q-learning algorithm did not greatly improve Jackson's score. Through a lot of time learning, Jackson still has no obvious improvement after 100,000 steps. In observing Jackson's learning process, we found that it sometimes pauses when making decisions, which may also waste its learning time. After discussion with Kolby, we decided to use PPO (Proximal Policy Optimization) with RLlib and Ray to train the agent in a random environment.
@@ -140,8 +141,9 @@ To evaluate Jackson's performance, we simply need to observe the number of carro
 <br />
 
 ***Quantitative:***  
-dd  
-<align="left" img src="./image/final_con_FoodNumberPlot.png" height="50%" width="50%"/> <align="right" img src="./image/final_con_rewards.png" height="50%" width="50%"/>  
+3
+<align="left" img src="./image/final_con_FoodNumberPlot.png" height="50%" width="50%"/> 
+<align="right" img src="./image/final_con_rewards.png" height="50%" width="50%"/>  
 
 <br />
 
