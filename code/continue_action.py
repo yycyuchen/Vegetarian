@@ -1,5 +1,3 @@
-# Rllib docs: https://docs.ray.io/en/latest/rllib.html
-
 try:
     from malmo import MalmoPython
 except:
@@ -8,6 +6,7 @@ except:
 import sys
 import time
 import json
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import randint
@@ -29,24 +28,17 @@ class Vegetarian(gym.Env):
         self.start_x = 0
         self.start_z = 0
         self.size = 50
-        self.reward_density = .1
-        self.penalty_density = 0.02
         self.obs_size = 5
         self.max_episode_steps = 100
         self.log_frequency = 10
         self.target_step = 200000
         self.action_dict = {
-            0: 'move 1',  # Move one block forward
-            1: 'turn 1',  # Turn 90 degrees to the right
-            2: 'turn -1',  # Turn 90 degrees to the left
-            #3: 'jump 1',  # Jump 
         }
 
         # Rllib Parameters
         self.action_space = Box(np.array([-1, -1]),np.array([+1, +1]),dtype=np.float32)
         self.observation_space = Box(-1, 1, shape=(self.obs_size * self.obs_size * 3 + 1, ), dtype=np.float32)
 
-        # print(Box);
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
         try:
@@ -63,7 +55,14 @@ class Vegetarian(gym.Env):
         self.episode_return = 0
         self.returns = []
         self.steps = []
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
+        self.return_carrot = []
+        self.return_mutton = []
+        self.return_cooked_mutton = []
 
+        self.total_items = {'carrot': 0, 'mutton': 0, 'cooked_mutton': 0}
     def reset(self):
         """
         Resets the environment for the next episode.
@@ -80,9 +79,18 @@ class Vegetarian(gym.Env):
         self.steps.append(current_step + self.episode_step)
         self.episode_return = 0
         self.episode_step = 0
-
+        
+        #reset number of items
+        self.return_carrot.append(self.num_carrot)
+        self.return_mutton.append(self.num_mutton)
+        self.return_cooked_mutton.append(self.num_cooked_mutton)
+        self.total_items['carrot'] = self.total_items['carrot'] + self.num_carrot
+        self.total_items['mutton'] = self.total_items['mutton'] + self.num_mutton
+        self.total_items['cooked_mutton'] = self.total_items['cooked_mutton'] + self.num_cooked_mutton
+        self.num_carrot = 0
+        self.num_cooked_mutton = 0
+        self.num_mutton = 0
         # Log
-        # print("RESET... "+ str(self.returns))
         if len(self.returns) > self.log_frequency + 1 and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
@@ -107,13 +115,6 @@ class Vegetarian(gym.Env):
         """
 
         # Get Action
-        # print("ACTION:")
-        # print(action)
-
-        # if(self.first):
-        #     self.agent_host.sendCommand("turn 1")
-        #     self.first = False
-        # self.agent_host.sendCommand("move 1")
 
         action_list = ['move ', 'turn ']
         
@@ -126,7 +127,6 @@ class Vegetarian(gym.Env):
         
 
         self.episode_step += 1
-            # print(command)
         # Get Observation
         world_state = self.agent_host.getWorldState()
         
@@ -142,9 +142,6 @@ class Vegetarian(gym.Env):
         for r in world_state.rewards:
             reward += r.getValue()
         self.episode_return += reward
-
-        # print("REWARD: " + str(self.episode_return))
-
 
         return self.obs, reward, done, dict()
 
@@ -172,25 +169,8 @@ class Vegetarian(gym.Env):
         right_bound = self.width - 2
         forward_bound = self.length - 4
 
-        # carrot_location = [10,1]
-        # for i in range(0, total_carrot):
-        #     rand = random.randint(0,2)
-        #     if rand == 0:
-        #         carrot_location[0] = carrot_location[0] - 1
-        #         carrot_location[1] = carrot_location[1] + 1
-        #     elif rand == 1:
-        #         carrot_location[0] = carrot_location[0]
-        #         carrot_location[1] = carrot_location[1] + 1
-        #     else:
-        #         carrot_location[0] = carrot_location[0] + 1
-        #         carrot_location[1] = carrot_location[1] + 1
-            
-        #     if carrot_location[0] > 20:
-        #         carrot_location[0] = 20
-        #     carrot_list.append(carrot_location[0] + carrot_location[1] * self.width)
-
         while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
-            next_step = np.random.choice([1, -1, 20], replace=False)
+            next_step = np.random.choice([1, -1, self.width], replace=False)
             if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
                  ((carrot_list[-1] % self.width) + next_step < right_bound or next_step == self.width)):
                 
@@ -204,7 +184,6 @@ class Vegetarian(gym.Env):
         #add the carrot and grass on the map
 
         for coor in carrot_list:
-            # //print(coor % self.width, coor // self.width)
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
             grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
 
@@ -263,7 +242,7 @@ class Vegetarian(gym.Env):
                     <AgentSection mode="Survival">
                         <Name>CarrotCollector</Name>
                         <AgentStart>
-                            <Placement x="10.5" y="2" z="0.5" pitch="30" yaw="0"/>
+                            <Placement x="10.5" y="2" z="0.5" pitch="45" yaw="0"/>
                             <Inventory>
                                 <InventoryItem slot="0" type="diamond_pickaxe"/>
                             </Inventory>
@@ -277,7 +256,7 @@ class Vegetarian(gym.Env):
                             <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
-                            
+                            <ObservationFromHotBar/>
                             <ObservationFromNearbyEntities>
                                 <Range name="itemAll" xrange='3' yrange='2' zrange='3' />                                
                             </ObservationFromNearbyEntities>
@@ -356,23 +335,41 @@ class Vegetarian(gym.Env):
                     # First we get the json from the observation API
                     msg = world_state.observations[-1].text
                     observations = json.loads(msg)
-                    # print(observations['XPos'], observations['YPos'],observations['ZPos'])
+                   
+                   #store number of item
+                    items = ["carrot", "cooked_mutton", "mutton"]
+                    
+                    for i in range(0,9):
+                        for item in items:
+                            slot_name = u'Hotbar_' + str(i) + '_item'
+                            slot_contents = observations.get(slot_name, "")
+                            if slot_contents == item:
+                                slot_number = u'Hotbar_' + str(i) + '_size'
+                                number = observations.get(slot_number, "")
+                                if items[0] == item:
+                                    self.num_carrot = number
+     
+                                elif items[1] == item:
+                                    self.num_cooked_mutton = number
+                                    
+                                else:
+                                    self.num_mutton = number
+                                                        
+                    
                     # Get observation                    
                     try:
                         grid = observations['itemAll']
                         yaw = observations['Yaw']
                     except:
-                        print("Retry floorALL error")
+                        print("Retry itemALL error")
                         time.sleep(0.20)
                         continue
 
                     agent = grid[0];
-                    # print(grid)
                     reward_list={}
 
                     for item in grid:
                         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
-                        # print(item['x'], item['z'], index)
 
                         if(item['name'] == 'carrot'):
                             obs[index * 1] = 1
@@ -383,26 +380,6 @@ class Vegetarian(gym.Env):
 
                         #yaw for each item
                     obs[-1] =  yaw / 360
-
-
-                    # for i, x in enumerate(grid):
-                    #     obs[i] = x == 'iron_ore' or x == 'carrot'
-
-
-                    # Rotate observation with orientation of agent
-                    # obs = obs.reshape((2, self.obs_size, self.obs_size))
-                    # yaw = observations['Yaw']
-                    # if yaw >= 225 and yaw < 315:
-                    #     obs = np.rot90(obs, k=1, axes=(1, 2))
-                    # elif yaw >= 315 or yaw < 45:
-                    #     obs = np.rot90(obs, k=2, axes=(1, 2))
-                    # elif yaw >= 45 and yaw < 135:
-                    #     obs = np.rot90(obs, k=3, axes=(1, 2))
-
-
-                    # obs[-1] = yaw / 360
-
-                    # print(obs)
 
                     edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
 
@@ -423,15 +400,51 @@ class Vegetarian(gym.Env):
         box = np.ones(self.log_frequency) / self.log_frequency
         returns_smooth = np.convolve(self.returns[1:], box, mode='same')
         plt.clf()
+        
+        # plot the rewards graphs
         plt.plot(self.steps[1:], returns_smooth)
         plt.title('Vegetarian')
-        plt.ylabel('Return')
+        plt.ylabel('Rewards')
         plt.xlabel('Steps')
-        plt.savefig('returns.png')
-        with open('returns.txt', 'w') as f:
+        plt.savefig('rewards.png')
+        with open('rewards.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
                 f.write("{}\t{}\n".format(step, value))
         
+        # plot the collect number of food graphs        
+        carrot_smooth = np.convolve(self.return_carrot[1:], box, mode='same')
+        mutton_smooth = np.convolve(self.return_mutton[1:], box, mode='same')
+        cooked_mutton_smooth = np.convolve(self.return_cooked_mutton[1:], box, mode='same')
+        plt.clf()
+
+        line1 = plt.plot(self.steps[1:], carrot_smooth, label = 'carrot', color = 'orange')
+        line2 = plt.plot(self.steps[1:], mutton_smooth, label = 'mutton', color = 'blue')
+        line3 = plt.plot(self.steps[1:], cooked_mutton_smooth, label = 'cooked_mutton', color = 'green')
+        
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("Steps")
+        plt.legend(loc = "upper right")
+
+        plt.savefig("FoodNumberPlot.png")
+        
+        with open('FoodNumberPlot.txt', 'w') as f:
+           for step, carrot, mutton, cooked_mutton in zip(self.steps[1:], self.return_carrot[1:], self.return_mutton[1:], self.return_cooked_mutton[1:]):
+               f.write("{}\t{}\t{}\t{}\n".format(step, carrot, mutton, cooked_mutton))
+
+        # plot total number of item
+        items = list(self.total_items.keys())
+        values = list(self.total_items.values())
+        fig = plt.figure(figsize = (10, 5)) 
+        plt.bar(items[0], values[0], color ='orange', width = 0.4) 
+        plt.bar(items[1], values[1], color ='blue', width = 0.4) 
+        plt.bar(items[2], values[2], color ='green', width = 0.4) 
+        plt.title("Vegetarian")
+        plt.ylabel("Numbers")
+        plt.xlabel("items")
+
+        plt.savefig("totalItem.png")
+               
         if self.steps[1:][-1] > self.target_step:
             print("EXIT")
             print(self.steps[1:][-1])
