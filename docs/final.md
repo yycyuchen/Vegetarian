@@ -142,7 +142,7 @@ Compared with Q-learning, PPO provides more stable results, but requires more tr
 Our baseline is to expect Jackson to basically walk along the "carrot path", so as to get as many carrots as possible. The following shows Jackson’s discrete movement under the PPO algorithm and meets our requirements.  
 <br />
 
-<img src="image/walk_demo.gif" width="100%">
+<img src="image/walk_demo.gif" width="50%">
 <br />
 
 <br />
@@ -153,7 +153,9 @@ We also expect that he can avoid mutton so that he can reduce the penalty and wh
 <br /> 
 
 
-We  tried Jackson’s discrete movement under the PPO algorithm to add jumping action as well, he can partially meet our requirements but will reduce picking up carrots and cannot jump over the mutton.  
+We  tried Jackson’s discrete movement under the PPO algorithm to add jumping action as well, he can partially meet our requirements but will reduce picking up carrots and cannot jump over the mutton.    
+  
+  
  
 <br />
 <img src="image/jump_demo.gif" width="50%">
