@@ -37,7 +37,6 @@ class Vegetarian(gym.Env):
             0: 'move 1',  # Move one block forward
             1: 'turn 1',  # Turn 90 degrees to the right
             2: 'turn -1',  # Turn 90 degrees to the left
-            #3: 'jump 1',  # Jump 
         }
 
         # Rllib Parameters
@@ -97,9 +96,7 @@ class Vegetarian(gym.Env):
         self.num_cooked_mutton = 0
         self.num_mutton = 0
 
-        # Log
-        # print("RESET... "+ str(self.returns))
-        
+        # Log        
         if len(self.returns) > self.log_frequency + 1 and \
             len(self.returns) % self.log_frequency == 0:
             self.log_returns()
@@ -141,19 +138,9 @@ class Vegetarian(gym.Env):
         for r in world_state.rewards:
             reward += r.getValue()
         self.episode_return += reward
-
-        # print("REWARD: " + str(self.episode_return))
         
         #Get number of food
-        #num_carrot = 0
-        #num_cooked_mutton = 0
-        #num_mutton = 0
-        #for f in world_state.rewards:
-        #    num_carrot += f.getValue()
-        #    num_cooked_mutton += f.getValue()
-        #    num_mutton += f.getValue()
         return self.obs, reward, done, dict()
-        #return self.obs, reward, num_carrot,num_cooked_mutton,num_mutton, done, dict()
 
     def get_mission_xml(self):
         wall_block = ""
@@ -179,23 +166,6 @@ class Vegetarian(gym.Env):
         right_bound = self.width - 2
         forward_bound = self.length - 4
 
-        # carrot_location = [10,1]
-        # for i in range(0, total_carrot):
-        #     rand = random.randint(0,2)
-        #     if rand == 0:
-        #         carrot_location[0] = carrot_location[0] - 1
-        #         carrot_location[1] = carrot_location[1] + 1
-        #     elif rand == 1:
-        #         carrot_location[0] = carrot_location[0]
-        #         carrot_location[1] = carrot_location[1] + 1
-        #     else:
-        #         carrot_location[0] = carrot_location[0] + 1
-        #         carrot_location[1] = carrot_location[1] + 1
-            
-        #     if carrot_location[0] > 20:
-        #         carrot_location[0] = 20
-        #     carrot_list.append(carrot_location[0] + carrot_location[1] * self.width)
-
         while(len(carrot_list) < total_carrot and (carrot_list[-1] // self.width) < forward_bound):
             next_step = np.random.choice([1, -1, 20], replace=False)
             if((carrot_list[-1] + next_step) not in carrot_list and (carrot_list[-1] % self.width) + next_step > left_bound and
@@ -211,11 +181,9 @@ class Vegetarian(gym.Env):
         #add the carrot and grass on the map
 
         for coor in carrot_list:
-            #print(coor % self.width, coor // self.width)
             carrot_xml += "<DrawItem x='{}' y ='2' z ='{}' type ='carrot' />".format(coor % self.width, coor // self.width)
             grass_xml += "<DrawBlock x='{}' y='1' z='{}' type='grass' />".format(coor % self.width, coor // self.width)
         
-        print(len(carrot_list))
         #mutton 
         muttons_map = []
         mutton_total = total_carrot * 0.8
@@ -387,22 +355,18 @@ class Vegetarian(gym.Env):
                                     
 
                     #################################
-                    # print(observations['XPos'], observations['YPos'],observations['ZPos'])
                     # Get observation                    
                     try:
                         grid = observations['itemAll']
                         yaw = observations['Yaw']
                     except:
-                        print("Retry floorALL error")
+                        print("Retry itemALL error")
                         time.sleep(0.20)
                         continue
 
                     agent = grid[0];
-                    # print(grid)
                     for item in grid:
                         index = self.obs_size * self.obs_size // 2 + (int)(item['x'] - agent['x']) + (int)(item['z'] - agent['z']) * self.obs_size
-                        # print(item['x'], item['z'], index)
-
                         if(item['name'] == 'carrot'):
                             obs[index] = 1
                         if(item['name'] == 'cooked_mutton'):
@@ -413,8 +377,6 @@ class Vegetarian(gym.Env):
 
                     # Rotate observation with orientation of agent
                     obs = obs.reshape((1, self.obs_size, self.obs_size))
-
-                    # print(obs)
                     
                     if yaw >= 225 and yaw < 315:
                         obs = np.rot90(obs, k=1, axes=(1, 2))
@@ -422,12 +384,9 @@ class Vegetarian(gym.Env):
                         obs = np.rot90(obs, k=2, axes=(1, 2))
                     elif yaw >= 45 and yaw < 135:
                         obs = np.rot90(obs, k=3, axes=(1, 2))
-                    # print(obs)
                     
                     obs = obs.flatten()
-                    # obs[-1] = observations['Yaw'] / 360
 
-                    # print(obs)
 
                     edge_wall_action = observations['LineOfSight']['type'] == 'iron_ore'
 
