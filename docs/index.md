@@ -2,6 +2,7 @@
 layout: default
 title:  Home
 ---
+https://username.github.io/yycyuchen/index.html
 <div style="text-align:left;">
 <img src="./image/home_page.jpg" height="50%" width="50%" />
 </div>
